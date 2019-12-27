@@ -21,13 +21,13 @@ Check `cfg.nix` to see all options.
 In your `home.nix` :
 
 ```
-  imports = [
-    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.1"; } + "/home-manager.nix")
-  ];
+imports = [
+  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.2.0"; } + "/home-manager.nix")
+];
 
-  programs.shadow-client = {
-    enable = true;
-  };
+programs.shadow-client = {
+  enable = true;
+};
 ```
 
 #### As a system package
@@ -35,11 +35,11 @@ In your `home.nix` :
 In your `configuration.nix` :
 
 ```
-  imports = [
-    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.1"; } + "/system.nix")
-  ];
+imports = [
+  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.2.0"; } + "/system.nix")
+];
 
-  programs.shadow-client = {
+programs.shadow-client = {
     enable = true;
-  };
+};
 ```
