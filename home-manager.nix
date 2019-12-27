@@ -6,7 +6,10 @@ let
   cfg = config.programs.shadow-client;
 
   shadow-beta = pkgs.callPackage ./shadow-beta.nix {
-    enableDiagnostics = cfg.enableDiag;
+    desktopLauncher = cfg.enableDesktopLauncher;
+    sessionCommand = cfg.provideSessionCommand;
+    enableDiagnostics = cfg.enableDiagnostics;
+    xsessionDesktopFile = cfg.provideXSession;
   };
 in
 {

@@ -4,13 +4,13 @@ The goal of this project is to provide Shadow on NixOS with a dynamic derivation
 
 **This project is not affiliated with the company providing Shadow in any way.**
 
-## Current status
+## Features
 
-It works ! But this is still a work in progress, remaining tasks are :
+ - Providing a session command to launch a Xorg Server (`shadow-beta-session`)
+ - Providing a XSession for display managers (`GDM`, `SDDM`)
+ - Enable `strace` on internal Shadow Client (for diagnostics purposes)
 
- - [X] Providing diagnostics options (for `strace`) 
- - [X] Supporting imports from `home-manager`
- - [ ] Providing a Xorg Wrapper (if a flag is enabled, start the client in a dedicated Xorg server on another TTY : usefull for wayland only setups).
+Check `cfg.nix` to see all options.
 
 ## How to use
 
