@@ -6,9 +6,14 @@ let
   cfg = config.programs.shadow-client;
 
   shadow-beta = pkgs.callPackage ./shadow-beta.nix {
-    desktopLauncher = cfg.enableDesktopLauncher;
-    sessionCommand = cfg.provideSessionCommand;
     enableDiagnostics = cfg.enableDiagnostics;
+    desktopLauncher = cfg.enableDesktopLauncher;
+  };
+
+  shadow-wrapped = pkgs.callPackage ./wrapper.nix {
+    shadow-beta = shadow-beta;
+    sessionCommand = cfg.provideSessionCommand;
+    preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
   };
 in
@@ -16,7 +21,7 @@ in
   imports = [ ./cfg.nix ];
 
   config = {
-    environment.systemPackages = [ shadow-beta ];
-    services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-beta ];
+    environment.systemPackages = [ shadow-wrapped ];
+    services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-wrapped ];
   };
 }

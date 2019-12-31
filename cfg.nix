@@ -46,5 +46,17 @@ with lib;
         Usefull if you want to autostart it without any DE/WM.
       '';
     };
+
+    preferredScreens = mkOption {
+      type = types.listOf (types.str);
+      default = [];
+      example = [ "HDMI1" ];
+      description = ''
+        Name of preferred screens, ordered by name. If one screen currently plugged matches
+        the other screens, it shutdowns all other screens.
+        This feature use xrandr, you must use xrandr screen names.
+        This can be usefull for laptops with changing multi-heads setups.
+      '';
+    };
   };
 }

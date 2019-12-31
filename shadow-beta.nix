@@ -8,21 +8,19 @@
 , libpsl, libkrb5, openldap, rtmpdump
 
 , desktopLauncher ? true
-, sessionCommand ? false
 , enableDiagnostics ? false
-, xsessionDesktopFile ? false
+, extraClientParameters ? []
 }:
 
-let
-  source = 
-   builtins.fromJSON (builtins.readFile (
-      runCommand "transform" { buildInputs = [yq]; }
-        "cat ${
-           builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/preprod/linux/ubuntu_18.04/latest-linux.yml"
-         } | yq -j . > $out"
-  ));
+with lib;
 
-  # This permit to display error that could not be displayed otherwise
+let
+  # Reading dynamic versions information from upstream update system
+  latestVersion = builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/preprod/linux/ubuntu_18.04/latest-linux.yml";
+  latestVersionJson = (runCommand "transform" { buildInputs = [yq]; } "cat ${latestVersion} | yq -j . > $out");
+  source = builtins.fromJSON (builtins.readFile latestVersionJson);
+
+  # This permit to display errors that could not be displayed otherwise
   diagTxt = ''
     mv $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow \
       $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/.Shadow-Orig
@@ -94,30 +92,21 @@ stdenv.mkDerivation rec {
     rm ./squashfs-root/AppRun
     mv ./squashfs-root $out/opt/shadow-beta
   ''
-  + lib.optionalString enableDiagnostics diagTxt
+  + optionalString enableDiagnostics diagTxt
   + ''
     wrapProgram $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath runtimeDependencies}
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${optionalString (extraClientParameters != []) ''
+        ${concatMapStrings (x: " --add-flags '" + x + "'") extraClientParameters}
+      ''}
 
     makeWrapper $out/opt/shadow-beta/shadow-preprod $out/bin/shadow-beta \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath runtimeDependencies}
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
   ''
-  + lib.optionalString desktopLauncher ''
+  + optionalString desktopLauncher ''
 	  mv $out/opt/shadow-beta/shadow-preprod.desktop $out/share/applications/shadow-preprod.desktop
     substituteInPlace $out/share/applications/shadow-preprod.desktop \
       --replace "Exec=AppRun" "Exec=$out/bin/shadow-beta"
-  ''
-  + lib.optionalString xsessionDesktopFile ''
-    mkdir -p $out/share/xsessions
-    cp $out/share/applications/shadow-preprod.desktop $out/share/xsessions/shadow-preprod.desktop
-  ''
-  + lib.optionalString sessionCommand ''
-    echo "#!${runtimeShell}" > $out/bin/shadow-beta-session
-    echo "startx $out/bin/shadow-beta" >> $out/bin/shadow-beta-session
-    chmod +x $out/bin/shadow-beta-session
   '';
-
-  passthru.providedSessions = [ "shadow-preprod" ];
 
   meta = with stdenv.lib; {
     description = "Client for the Shadow Cloud Gaming Computer";
