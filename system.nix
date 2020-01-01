@@ -7,7 +7,6 @@ let
 
   shadow-beta = pkgs.callPackage ./shadow-beta.nix {
     enableDiagnostics = cfg.enableDiagnostics;
-    desktopLauncher = cfg.enableDesktopLauncher;
   };
 
   shadow-wrapped = pkgs.callPackage ./wrapper.nix {
@@ -15,6 +14,7 @@ let
     sessionCommand = cfg.provideSessionCommand;
     preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
+    desktopLauncher = cfg.enableDesktopLauncher;
   };
 in
 {

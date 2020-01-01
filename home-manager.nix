@@ -15,6 +15,7 @@ let
     sessionCommand = cfg.provideSessionCommand;
     preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
+    desktopLauncher = cfg.enableDesktopLauncher;
   };
 in
 {

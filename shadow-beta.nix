@@ -7,7 +7,6 @@
 , libsecret, systemd, pulseaudio, libGL, dbus, libnghttp2, libidn2
 , libpsl, libkrb5, openldap, rtmpdump
 
-, desktopLauncher ? true
 , enableDiagnostics ? false
 , extraClientParameters ? []
 }:
@@ -101,11 +100,7 @@ stdenv.mkDerivation rec {
 
     makeWrapper $out/opt/shadow-beta/shadow-preprod $out/bin/shadow-beta \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
-  ''
-  + optionalString desktopLauncher ''
-	  mv $out/opt/shadow-beta/shadow-preprod.desktop $out/share/applications/shadow-preprod.desktop
-    substituteInPlace $out/share/applications/shadow-preprod.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-beta"
+
   '';
 
   meta = with stdenv.lib; {

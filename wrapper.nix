@@ -7,6 +7,7 @@
 , writeShellScriptBin
 , makeWrapper
 
+, desktopLauncher ? true
 , xsessionDesktopFile ? false
 , sessionCommand ? false
 , preferredScreens ? []
@@ -50,7 +51,14 @@ in symlinkJoin {
 
   postBuild = lib.optionalString xsessionDesktopFile ''
     mkdir -p $out/share/xsessions
-    cp ${shadow-beta}/share/applications/shadow-preprod.desktop $out/share/xsessions/shadow-preprod.desktop
+    substitute ${shadow-beta}/opt/shadow-beta/shadow-preprod.desktop \
+      $out/share/xsessions/shadow-preprod.desktop \
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-beta"
+  ''
+  + optionalString desktopLauncher ''
+    substitute ${shadow-beta}/opt/shadow-beta/shadow-preprod.desktop \
+      $out/share/applications/shadow-preprod.desktop \
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-beta"
   '';
 
   passthru.providedSessions = [ "shadow-preprod" ];
