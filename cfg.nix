@@ -5,7 +5,7 @@ with lib;
 {
   options.programs.shadow-client = {
     enable = mkEnableOption ''
-      Install the client to use the Shadow Gaming Cloud Computer on NixOS 
+      Enable the client to the Shadow Gaming Cloud Computer on NixOS
     '';
 
     enableDesktopLauncher = mkOption {
@@ -13,7 +13,7 @@ with lib;
       default = true;
       example = false;
       description = ''
-        Provides the desktop file for launching Shadow from current session.
+        Provides the desktop file for launching Shadow from current session (only works with Xorg sessions).
       '';
     };
 
@@ -33,7 +33,7 @@ with lib;
       description = ''
         The command used to execute the client will be output in a file in /tmp.
         The client will output its strace in /tmp.
-        This is mainly used for diagnostics purposes (when an update breaks something)
+        This is mainly used for diagnostics purposes (when an update breaks something).
       '';
     };
 
@@ -43,7 +43,7 @@ with lib;
       example = true;
       description = ''
         Provides a XSession desktop file for Shadow Launcher.
-        Usefull if you want to autostart it without any DE/WM.
+        Useful if you want to autostart it without any DE/WM.
       '';
     };
 
@@ -53,9 +53,9 @@ with lib;
       example = [ "HDMI1" ];
       description = ''
         Name of preferred screens, ordered by name. If one screen currently plugged matches
-        the other screens, it shutdowns all other screens.
-        This feature use xrandr, you must use xrandr screen names.
-        This can be usefull for laptops with changing multi-heads setups.
+        the listed screens in this options, it shutdowns all other screens.
+        This feature use xrandr, thus you must use xrandr screen names.
+        This can be useful for laptops with changing multi-heads setups.
       '';
     };
 

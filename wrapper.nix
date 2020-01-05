@@ -18,8 +18,8 @@
 with lib;
 
 let
-  # Handling array conparaisons in bash are painfull and a waste of energy...
-  # Here is how I handle the logic of screen selection with a basic ruby script.
+  # Logic of screen selection with a basic ruby script.
+  # (Handling array conparaisons in plain bash are painfull and a waste of time...)
   screenManager = writeScriptBin "set-shadow-screens" ''
     #!${ruby}/bin/ruby
     connected = ARGV[0].split("\n")
