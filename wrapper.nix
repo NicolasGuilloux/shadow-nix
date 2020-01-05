@@ -1,16 +1,18 @@
 { stdenv
 , lib
 , ruby
-, shadow-beta
+, shadow-package
 , symlinkJoin
 , writeScriptBin
 , writeShellScriptBin
 , makeWrapper
+, compton
 
 , desktopLauncher ? true
 , xsessionDesktopFile ? false
 , sessionCommand ? false
 , preferredScreens ? []
+, shadowChannel ? "preprod"
 }:
 
 with lib;
@@ -26,40 +28,42 @@ let
     (connected-preferred).each { |screen| `xrandr --output #{screen} --off` }
   '';
 
-  baseWrapper = writeShellScriptBin "shadow-beta" ''
+  baseWrapper = writeShellScriptBin "shadow-${shadowChannel}" ''
     set -o errexit
 
     # Managing connected screens
     CONNECTED_SCREENS=`xrandr | grep -v "disconnected" | grep "connected" | awk '{ print $1 }'`
     PREFERRED_SCREENS=(${builtins.concatStringsSep " " preferredScreens})
-
     ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS" > /tmp/output.txt
 
-    exec ${shadow-beta}/bin/shadow-beta "$@"
+    # Enable compositor with Vsync (can help reduce teardown on Xorg)
+    ${compton}/bin/compton --vsync -b
+
+    exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
   '';
 
-  sessionCommandWrapper = writeShellScriptBin "shadow-beta-session" ''
+  sessionCommandWrapper = writeShellScriptBin "shadow-${shadowChannel}-session" ''
     set -o errexit
-    exec startx ${baseWrapper}/bin/shadow-beta "$@"
+    exec startx ${baseWrapper}/bin/shadow-${shadowChannel} "$@"
   '';
 in symlinkJoin {
-  name = "shadow-beta-${shadow-beta.version}";
+  name = "shadow-${shadowChannel}-${shadow-package.version}";
 
-  paths = [ baseWrapper shadow-beta ] ++ (optional sessionCommand sessionCommandWrapper);
+  paths = [ baseWrapper shadow-package ] ++ (optional sessionCommand sessionCommandWrapper);
 
   nativeBuildInputs = [ makeWrapper ];
 
   postBuild = lib.optionalString xsessionDesktopFile ''
     mkdir -p $out/share/xsessions
-    substitute ${shadow-beta}/opt/shadow-beta/shadow-preprod.desktop \
-      $out/share/xsessions/shadow-preprod.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-beta"
+    substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
+      $out/share/xsessions/${shadow-package.binaryName}.desktop \
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
   ''
   + optionalString desktopLauncher ''
-    substitute ${shadow-beta}/opt/shadow-beta/shadow-preprod.desktop \
-      $out/share/applications/shadow-preprod.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-beta"
+    substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
+      $out/share/applications/${shadow-package.binaryName}.desktop \
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
   '';
 
-  passthru.providedSessions = [ "shadow-preprod" ];
+  passthru.providedSessions = [ shadow-package.binaryName ];
 }

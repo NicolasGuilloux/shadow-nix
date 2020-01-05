@@ -9,40 +9,43 @@
 
 , enableDiagnostics ? false
 , extraClientParameters ? []
+, shadowChannel ? "preprod"
 }:
 
 with lib;
 
 let
   # Reading dynamic versions information from upstream update system
-  latestVersion = builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/preprod/linux/ubuntu_18.04/latest-linux.yml";
+  latestVersion = builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/${shadowChannel}/linux/ubuntu_18.04/latest-linux.yml";
   latestVersionJson = (runCommand "transform" { buildInputs = [yq]; } "cat ${latestVersion} | yq -j . > $out");
   source = builtins.fromJSON (builtins.readFile latestVersionJson);
 
   # This permit to display errors that could not be displayed otherwise
   diagTxt = ''
-    mv $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow \
-      $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/.Shadow-Orig
+    mv $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
+      $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/.Shadow-Orig
 
-    echo "#!${runtimeShell}" > $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow
+    echo "#!${runtimeShell}" > $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow
 
     echo "echo \"\$@\" > /tmp/shadow.current_cmd" >> \
-      $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow
+      $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow
 
-    echo "strace $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/.Shadow-Orig \"\$@\" > /tmp/shadow.strace 2>&1" >> \
-      $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow
+    echo "strace $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/.Shadow-Orig \"\$@\" > /tmp/shadow.strace 2>&1" >> \
+      $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow
 
-    chmod +x $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow
+    chmod +x $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow
   '';
 in
 stdenv.mkDerivation rec {
-  pname = "shadow-beta";
+  pname = "shadow-${shadowChannel}";
   version = source.version;
 
   src = fetchurl {
-    url = "https://update.shadow.tech/launcher/preprod/linux/ubuntu_18.04/ShadowBeta.AppImage";
+    url = "https://update.shadow.tech/launcher/${shadowChannel}/linux/ubuntu_18.04/${source.path}";
     hash = "sha512-${source.sha512}";
   };
+
+  binaryName = (if shadowChannel == "prod" then "shadow" else "shadow-${shadowChannel}");
 
   nativeBuildInputs = [
     autoPatchelfHook
@@ -89,18 +92,17 @@ stdenv.mkDerivation rec {
     mkdir -p $out/share/applications
     rm -r ./squashfs-root/usr/lib
     rm ./squashfs-root/AppRun
-    mv ./squashfs-root $out/opt/shadow-beta
+    mv ./squashfs-root $out/opt/shadow-${shadowChannel}
   ''
   + optionalString enableDiagnostics diagTxt
   + ''
-    wrapProgram $out/opt/shadow-beta/resources/app.asar.unpacked/release/native/Shadow \
+    wrapProgram $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${optionalString (extraClientParameters != []) ''
         ${concatMapStrings (x: " --add-flags '" + x + "'") extraClientParameters}
       ''}
 
-    makeWrapper $out/opt/shadow-beta/shadow-preprod $out/bin/shadow-beta \
+    makeWrapper $out/opt/shadow-${shadowChannel}/${binaryName} $out/bin/shadow-${shadowChannel} \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
-
   '';
 
   meta = with stdenv.lib; {

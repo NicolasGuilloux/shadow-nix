@@ -5,12 +5,15 @@ with lib;
 let
   cfg = config.programs.shadow-client;
 
-  shadow-beta = pkgs.callPackage ./shadow-beta.nix {
+  shadow-package = pkgs.callPackage ./shadow-package.nix {
+    shadowChannel = cfg.channel;
     enableDiagnostics = cfg.enableDiagnostics;
   };
 
   shadow-wrapped = pkgs.callPackage ./wrapper.nix {
-    shadow-beta = shadow-beta;
+    shadow-package = shadow-package;
+
+    shadowChannel = cfg.channel;
     sessionCommand = cfg.provideSessionCommand;
     preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;

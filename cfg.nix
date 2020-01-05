@@ -58,5 +58,15 @@ with lib;
         This can be usefull for laptops with changing multi-heads setups.
       '';
     };
+
+    channel = mkOption {
+      type = types.enum [ "prod" "preprod" ];
+      default = "prod";
+      example = "preprod";
+      description = ''
+        Choose a channel for the Shadow application.
+        `prod` is the stable channel, `preprod` is the beta channel.
+      '';
+    };
   };
 }
