@@ -71,6 +71,7 @@ stdenv.mkDerivation rec {
     libGL
     dbus
     libsecret
+    xorg.libXinerama
   ];
 
   unpackPhase = ''
