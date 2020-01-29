@@ -37,7 +37,7 @@ let
     ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS" > /tmp/output.txt
 
     # Enable compositor with Vsync (can help reduce teardown on Xorg)
-    ${compton}/bin/compton --vsync -b
+    ${compton}/bin/compton --vsync -b --backend glx
 
     exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
   '';
