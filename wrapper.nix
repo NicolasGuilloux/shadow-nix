@@ -49,7 +49,9 @@ let
 in symlinkJoin {
   name = "shadow-${shadowChannel}-${shadow-package.version}";
 
-  paths = [ baseWrapper shadow-package ] ++ (optional sessionCommand sessionCommandWrapper);
+  paths = [ shadow-package ] 
+    ++ (optional sessionCommand sessionCommandWrapper)
+    ++ (optional sessionCommand baseWrapper);
 
   nativeBuildInputs = [ makeWrapper ];
 
