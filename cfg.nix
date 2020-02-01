@@ -17,15 +17,6 @@ with lib;
       '';
     };
 
-    provideSessionCommand = mkOption {
-      type = types.bool;
-      default = true;
-      example = false;
-      description = ''
-        Provides a session with startx arguments to launch it from command line.
-      '';
-    };
-
     enableDiagnostics = mkOption {
       type = types.bool;
       default = false;
@@ -66,6 +57,15 @@ with lib;
       description = ''
         Choose a channel for the Shadow application.
         `prod` is the stable channel, `preprod` is the beta channel.
+      '';
+    };
+
+    launchArgs = mkOption {
+      type = types.str;
+      default = "";
+      example = "--report";
+      description = ''
+        Start the launcher with arguments by default
       '';
     };
   };

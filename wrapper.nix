@@ -10,9 +10,9 @@
 
 , desktopLauncher ? true
 , xsessionDesktopFile ? false
-, sessionCommand ? false
 , preferredScreens ? []
 , shadowChannel ? "preprod"
+, launchArgs ? ""
 }:
 
 with lib;
@@ -28,7 +28,7 @@ let
     (connected-preferred).each { |screen| `xrandr --output #{screen} --off` }
   '';
 
-  baseWrapper = writeShellScriptBin "shadow-${shadowChannel}" ''
+  sessionCommandWrapper = writeShellScriptBin "shadow-${shadowChannel}-session" ''
     set -o errexit
 
     # Managing connected screens
@@ -36,30 +36,23 @@ let
     PREFERRED_SCREENS=(${builtins.concatStringsSep " " preferredScreens})
     ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS" > /tmp/output.txt
 
-    # Enable compositor with Vsync (can help reduce teardown on Xorg)
+    # Start VSync
     ${compton}/bin/compton --vsync -b --backend glx
 
     exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
   '';
-
-  sessionCommandWrapper = writeShellScriptBin "shadow-${shadowChannel}-session" ''
-    set -o errexit
-    exec startx ${baseWrapper}/bin/shadow-${shadowChannel} "$@"
-  '';
 in symlinkJoin {
   name = "shadow-${shadowChannel}-${shadow-package.version}";
 
-  paths = [ shadow-package ] 
-    ++ (optional sessionCommand sessionCommandWrapper)
-    ++ (optional sessionCommand baseWrapper);
+  paths = [ shadow-package ] ++ (optional xsessionDesktopFile sessionCommandWrapper);
 
   nativeBuildInputs = [ makeWrapper ];
 
-  postBuild = lib.optionalString xsessionDesktopFile ''
+  postBuild = optionalString xsessionDesktopFile ''
     mkdir -p $out/share/xsessions
     substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
       $out/share/xsessions/${shadow-package.binaryName}.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}-session"
   ''
   + optionalString desktopLauncher ''
     substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \

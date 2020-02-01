@@ -14,10 +14,10 @@ let
     shadow-package = shadow-package;
 
     shadowChannel = cfg.channel;
-    sessionCommand = cfg.provideSessionCommand;
     preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
     desktopLauncher = cfg.enableDesktopLauncher;
+    launchArgs = cfg.launchArgs;
   };
 in
 {
