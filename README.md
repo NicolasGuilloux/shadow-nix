@@ -44,6 +44,10 @@ programs.shadow-client = {
  - `provideXSession` : `bool` / default `false` (requires system mode) : Provides a XSession desktop file for Shadow Launcher. Useful if you want to autostart it without any DE/WM.
  - `preferredScreens` : `bool` / default `[]` :  Name of preferred screens, ordered by name. If one screen currently plugged matches the listed screens in this options, it shutdowns all other screens. This feature use xrandr, thus you must use xrandr screen names. This can be useful for laptops with changing multi-heads setups.
 
+## A word on vaapi
+
+It is important to have `vaapi` enabled to make Shadow works correctly. You can find information on this [NixOS wiki page](https://nixos.wiki/wiki/Accelerated_Video_Playback).
+
 ## I want to add an option
 
  - Issues and PR are welcome ! I'll do my best to make this works for everyone !
