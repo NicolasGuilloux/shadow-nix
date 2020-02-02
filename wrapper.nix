@@ -8,7 +8,6 @@
 , makeWrapper
 , compton
 
-, desktopLauncher ? true
 , xsessionDesktopFile ? false
 , preferredScreens ? []
 , shadowChannel ? "preprod"
@@ -53,11 +52,6 @@ in symlinkJoin {
     substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
       $out/share/xsessions/${shadow-package.binaryName}.desktop \
       --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}-session"
-  ''
-  + optionalString desktopLauncher ''
-    substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
-      $out/share/applications/${shadow-package.binaryName}.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
   '';
 
   passthru.providedSessions = [ shadow-package.binaryName ];

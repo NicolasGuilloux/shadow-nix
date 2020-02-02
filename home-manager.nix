@@ -8,6 +8,7 @@ let
   shadow-package = pkgs.callPackage ./shadow-package.nix {
     shadowChannel = cfg.channel;
     enableDiagnostics = cfg.enableDiagnostics;
+    desktopLauncher = cfg.enableDesktopLauncher;
   };
 
   shadow-wrapped = pkgs.callPackage ./wrapper.nix {
@@ -16,7 +17,6 @@ let
     shadowChannel = cfg.channel;
     preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
-    desktopLauncher = cfg.enableDesktopLauncher;
     launchArgs = cfg.launchArgs;
   };
 in

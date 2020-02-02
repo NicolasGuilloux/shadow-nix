@@ -10,6 +10,7 @@
 , enableDiagnostics ? false
 , extraClientParameters ? []
 , shadowChannel ? "preprod"
+, desktopLauncher ? true
 }:
 
 with lib;
@@ -104,6 +105,11 @@ stdenv.mkDerivation rec {
 
     makeWrapper $out/opt/shadow-${shadowChannel}/${binaryName} $out/bin/shadow-${shadowChannel} \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
+  ''
+  + optionalString desktopLauncher ''
+    substitute $out/opt/shadow-${shadowChannel}/${binaryName}.desktop \
+      $out/share/applications/${binaryName}.desktop \
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
   '';
 
   meta = with stdenv.lib; {
