@@ -68,5 +68,16 @@ with lib;
         Start the launcher with arguments by default
       '';
     };
+
+    disableAmdFix = mkOption {
+      type = types.bool;
+      default = false;
+      example = true;
+      description = ''
+        When the amdgpu driver is detected, the drirc fix is
+        applied automatically. Enabling this option force disable the
+        fix.
+      '';
+    };
   };
 }

@@ -23,7 +23,7 @@ in
 {
   imports = [ ./cfg.nix ];
 
-  config = {
+  config = mkIf cfg.enable {
     home.packages = [ shadow-wrapped ];
   };
 }

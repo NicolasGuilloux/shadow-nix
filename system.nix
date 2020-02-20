@@ -23,8 +23,24 @@ in
 {
   imports = [ ./cfg.nix ];
 
-  config = {
+  config = mkIf cfg.enable {
     environment.systemPackages = [ shadow-wrapped ];
+
     services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-wrapped ];
+
+    environment.etc = mkIf (!cfg.disableAmdFix && (any (s: s == "amdgpu") config.services.xserver.videoDrivers)) {
+      "drirc" = {
+        text = ''
+          <driconf>
+            <device driver="radeonsi">
+              <application name="Shadow" executable="Shadow">
+                <option name="allow_rgb10_configs" value="false" />
+                <option name="radeonsi_clear_db_cache_before_clear" value="true" /> 
+              </application>
+            </device>
+          </driconf>
+        '';
+      };
+    };
   };
 }
