@@ -51,7 +51,7 @@ with lib;
     };
 
     channel = mkOption {
-      type = types.enum [ "prod" "preprod" ];
+      type = types.enum [ "prod" "preprod" "testing" ];
       default = "prod";
       example = "preprod";
       description = ''
