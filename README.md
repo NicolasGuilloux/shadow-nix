@@ -40,7 +40,7 @@ programs.shadow-client = {
 
 ## Options
 
- - `channel` : Choose a channel for the Shadow application. `prod` is the stable channel, `preprod` is the beta channel and `testint` is the alpha channel.
+ - `channel` : Choose a channel for the Shadow application. `prod` is the stable channel, `preprod` is the beta channel and `testing` is the alpha channel.
  - `enableDesktopLauncher` : `bool` / default `true` : Provides the desktop file for launching Shadow from current session (only works with Xorg sessions).
  - `enableDiagnostics` : `bool` / default `false` : The command used to execute the client will be output in a file in /tmp. The client will output its strace in /tmp. This is mainly used for diagnostics purposes (when an update breaks something).
  - `provideXSession` : `bool` / default `false` (requires system mode) : Provides a XSession desktop file for Shadow Launcher. Useful if you want to autostart it without any DE/WM.
@@ -57,21 +57,18 @@ It is important to have `vaapi` enabled to make Shadow works correctly. You can 
 
 The following example should work for both AMD and Intel GPU. This is just an example, there is no guarantee that it will work.
 
-
 ```
 # Provides the `vainfo` command
-environment.systemPackages = with pkgs; [
-	libva-utils
-];
+environment.systemPackages = with pkgs; [ libva-utils ];
 
 # Hardware hybrid decoding
 nixpkgs.config.packageOverrides = pkgs: {
-	vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+  vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
 };
 
 # Hardware drivers
 hardware.opengl = {
-	enable = true;
+  enable = true;
   extraPackages = with pkgs; [
     vaapiIntel
     vaapiVdpau
