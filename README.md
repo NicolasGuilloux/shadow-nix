@@ -14,7 +14,7 @@ In your `home.nix` :
 
 ```
 imports = [
-  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.11.0"; } + "/home-manager.nix")
+  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.12.0"; } + "/home-manager.nix")
 ];
 
 programs.shadow-client = {
@@ -29,7 +29,7 @@ In your `configuration.nix` :
 
 ```
 imports = [
-  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.11.0"; } + "/system.nix")
+  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.12.0"; } + "/system.nix")
 ];
 
 programs.shadow-client = {
