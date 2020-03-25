@@ -33,17 +33,22 @@ let
     # Managing connected screens
     CONNECTED_SCREENS=`xrandr | grep -v "disconnected" | grep "connected" | awk '{ print $1 }'`
     PREFERRED_SCREENS=(${builtins.concatStringsSep " " preferredScreens})
-    ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS" > /tmp/output.txt
+    ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS"
 
     # Start VSync
     ${compton}/bin/compton --vsync -b --backend glx
 
     exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
   '';
+
+  standaloneSessionCommandWrapper = writeShellScriptBin "shadow-${shadowChannel}-standalone-session" ''
+    set -o errexit
+    exec startx ${sessionCommandWrapper}/bin/shadow-${shadowChannel}-session "$@"
+  '';
 in symlinkJoin {
   name = "shadow-${shadowChannel}-${shadow-package.version}";
 
-  paths = [ shadow-package ] ++ (optional xsessionDesktopFile sessionCommandWrapper);
+  paths = [ shadow-package ] ++ (optional xsessionDesktopFile [sessionCommandWrapper standaloneSessionCommandWrapper]);
 
   nativeBuildInputs = [ makeWrapper ];
 
