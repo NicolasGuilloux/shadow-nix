@@ -20,6 +20,7 @@ let
     launchArgs = cfg.launchArgs;
   };
 
+  # Drirc file
   drirc = (fetchGit {
     url = "https://github.com/NicolasGuilloux/blade-shadow-beta";
     ref = "master";
@@ -28,14 +29,13 @@ in {
   imports = [ ./cfg.nix ];
 
   config = mkIf cfg.enable {
+    # Install Shadow wrapper
     environment.systemPackages = [ shadow-wrapped ];
 
+    # Add Shadow session
     services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-wrapped ];
 
-    environment.etc = mkIf (!cfg.disableGpuFix) {
-      "drirc" = {
-        text = drirc;
-      };
-    };
+    # Add DRIRC GPU fixes
+    environment.etc."drirc".source = mkIf (!cfg.disableGpuFix) { drirc };
   };
 }
