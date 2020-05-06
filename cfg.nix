@@ -40,7 +40,7 @@ with lib;
 
     preferredScreens = mkOption {
       type = types.listOf (types.str);
-      default = [];
+      default = [ ];
       example = [ "HDMI1" ];
       description = ''
         Name of preferred screens, ordered by name. If one screen currently plugged matches
@@ -69,14 +69,12 @@ with lib;
       '';
     };
 
-    disableAmdFix = mkOption {
+    disableGpuFix = mkOption {
       type = types.bool;
       default = false;
       example = true;
       description = ''
-        When the amdgpu driver is detected, the drirc fix is
-        applied automatically. Enabling this option force disable the
-        fix.
+        Disable the GPU fixes for Shadow related to the color bit size.
       '';
     };
   };

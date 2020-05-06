@@ -19,8 +19,12 @@ let
     xsessionDesktopFile = cfg.provideXSession;
     launchArgs = cfg.launchArgs;
   };
-in
-{
+
+  drirc = (fetchGit {
+    url = "https://github.com/NicolasGuilloux/blade-shadow-beta";
+    ref = "master";
+  } + "/resources/drirc");
+in {
   imports = [ ./cfg.nix ];
 
   config = mkIf cfg.enable {
@@ -28,18 +32,9 @@ in
 
     services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-wrapped ];
 
-    environment.etc = mkIf (!cfg.disableAmdFix && (any (s: s == "amdgpu") config.services.xserver.videoDrivers)) {
+    environment.etc = mkIf (!cfg.disableGpuFix) {
       "drirc" = {
-        text = ''
-          <driconf>
-            <device driver="radeonsi">
-              <application name="Shadow" executable="Shadow">
-                <option name="allow_rgb10_configs" value="false" />
-                <option name="radeonsi_clear_db_cache_before_clear" value="true" /> 
-              </application>
-            </device>
-          </driconf>
-        '';
+        text = drirc;
       };
     };
   };
