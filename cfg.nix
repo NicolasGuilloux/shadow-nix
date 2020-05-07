@@ -40,7 +40,7 @@ with lib;
 
     preferredScreens = mkOption {
       type = types.listOf (types.str);
-      default = [];
+      default = [ ];
       example = [ "HDMI1" ];
       description = ''
         Name of preferred screens, ordered by name. If one screen currently plugged matches
@@ -69,14 +69,21 @@ with lib;
       '';
     };
 
-    disableAmdFix = mkOption {
+    forceDriver = mkOption {
+      type = types.enum [ "" "iHD" "i965" "radeon" "radeonsi" ];
+      default = "";
+      example = "iHD";
+      description = ''
+        Force the VA driver used by Shadow using the LIBVA_DRIVER_NAME environment variable.
+      '';
+    };
+
+    disableGpuFix = mkOption {
       type = types.bool;
       default = false;
       example = true;
       description = ''
-        When the amdgpu driver is detected, the drirc fix is
-        applied automatically. Enabling this option force disable the
-        fix.
+        Disable the GPU fixes for Shadow related to the color bit size.
       '';
     };
   };

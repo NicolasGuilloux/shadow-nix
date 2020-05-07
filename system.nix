@@ -5,12 +5,14 @@ with lib;
 let
   cfg = config.programs.shadow-client;
 
+  # Declare the package with the appropriate configuration
   shadow-package = pkgs.callPackage ./shadow-package.nix {
     shadowChannel = cfg.channel;
     enableDiagnostics = cfg.enableDiagnostics;
     desktopLauncher = cfg.enableDesktopLauncher;
   };
 
+  # Declare the wrapper with the appropriate configuration
   shadow-wrapped = pkgs.callPackage ./wrapper.nix {
     shadow-package = shadow-package;
 
@@ -19,28 +21,31 @@ let
     xsessionDesktopFile = cfg.provideXSession;
     launchArgs = cfg.launchArgs;
   };
-in
-{
+
+  # Drirc file
+  drirc = (fetchGit {
+    url = "https://github.com/NicolasGuilloux/blade-shadow-beta";
+    ref = "master";
+  } + "/resources/drirc");
+in {
+  # Import the configuration
   imports = [ ./cfg.nix ];
 
   config = mkIf cfg.enable {
+    # Install Shadow wrapper
     environment.systemPackages = [ shadow-wrapped ];
 
+    # Add Shadow session
     services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-wrapped ];
 
-    environment.etc = mkIf (!cfg.disableAmdFix && (any (s: s == "amdgpu") config.services.xserver.videoDrivers)) {
-      "drirc" = {
-        text = ''
-          <driconf>
-            <device driver="radeonsi">
-              <application name="Shadow" executable="Shadow">
-                <option name="allow_rgb10_configs" value="false" />
-                <option name="radeonsi_clear_db_cache_before_clear" value="true" /> 
-              </application>
-            </device>
-          </driconf>
-        '';
-      };
+    # Add GPU fixes
+    environment.etc."drirc" = mkIf (!cfg.disableGpuFix) { 
+      source = drirc; 
+    };
+
+    # Force VA Driver
+    environment.variables = mkIf (cfg.forceDriver != "") {
+      LIBVA_DRIVER_NAME = [cfg.forceDriver];
     };
   };
 }
