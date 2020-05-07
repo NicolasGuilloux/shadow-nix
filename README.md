@@ -34,14 +34,16 @@ In your `home.nix` :
 In your `configuration.nix` :
 
 ```nix
-imports = [
-  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/system.nix")
-];
+{
+  imports = [
+    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/system.nix")
+  ];
 
-programs.shadow-client = {
-  enable = true;
-  channel = "prod";
-};
+  programs.shadow-client = {
+    enable = true;
+    channel = "prod";
+  };
+}
 ```
 
 ## Options
@@ -65,24 +67,26 @@ It is important to have `vaapi` enabled to make Shadow works correctly. You can 
 The following example should work for both AMD and Intel GPU. This is just an example, there is no guarantee that it will work.
 
 ```nix
-# Provides the `vainfo` command
-environment.systemPackages = with pkgs; [ libva-utils ];
+{
+  # Provides the `vainfo` command
+  environment.systemPackages = with pkgs; [ libva-utils ];
 
-# Hardware hybrid decoding
-nixpkgs.config.packageOverrides = pkgs: {
-  vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-};
+  # Hardware hybrid decoding
+  nixpkgs.config.packageOverrides = pkgs: {
+    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+  };
 
-# Hardware drivers
-hardware.opengl = {
-  enable = true;
-  extraPackages = with pkgs; [
-    vaapiIntel
-    vaapiVdpau
-    libvdpau-va-gl
-    intel-media-driver
-  ];
-};
+  # Hardware drivers
+  hardware.opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      vaapiIntel
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-media-driver
+    ];
+  };
+}
 ```
 
 
