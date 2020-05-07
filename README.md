@@ -17,14 +17,16 @@ If you want the latest package derivation, use `ref = "master"` instead.
 In your `home.nix` :
 
 ```nix
-imports = [
-  (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/home-manager.nix")
-];
+{
+  imports = [
+    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/home-manager.nix")
+  ];
 
-programs.shadow-client = {
-  enable = true;
-  channel = "preprod";
-};
+  programs.shadow-client = {
+    enable = true;
+    channel = "preprod";
+  };
+}
 ```
 
 #### As a system package
