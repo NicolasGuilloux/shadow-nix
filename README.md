@@ -89,6 +89,29 @@ The following example should work for both AMD and Intel GPU. This is just an ex
 }
 ```
 
+#### Black screen issue with official Nvidia drivers
+
+As stated previously, you need the `vaapiVdpau` extra package. However, if you get a black screen when streaming from Shadow and are using a Nvidia graphic card, you might need to patch the [libva-vdpau-driver](https://gitlab.com/aar642/libva-vdpau-driver).
+
+Thankfully, it's quite easy to straightforward to apply a custom patch on NixOS. You can, for example, edit your `/etc/nixos/configuration.nix/` so that it looks like this:
+
+```nix
+  nixpkgs.overlays = [
+      (self: super: {
+          vaapiVdpau = super.vaapiVdpau.overrideAttrs (oldAttrs: rec {
+            name = "libva-vdpau-driver-nvidia-patched";
+            patches = oldAttrs.patches ++ [
+            (self.fetchpatch {
+                url = "https://gist.githubusercontent.com/tcheneau/702ce1376181aa4562443681830a3408/raw/26b78137bc62d4560f7fed336a504a81c9933a42/reflow-arekinath-nvidia-v2.patch";
+                sha256 = "0w7n83lf61fjksqaxblpzqjhj9m6cpzny29c3bp3r0ladxbkhnw7";
+            })
+            ];
+          });
+      })
+  ];
+```
+
+Note that this patch has been reworked by tcheneau as the original patch did not apply.
 
 ## I want to add an option
 
