@@ -36,16 +36,14 @@ in {
     environment.systemPackages = [ shadow-wrapped ];
 
     # Add Shadow session
-    services.xserver.displayManager.sessionPackages = mkIf cfg.provideXSession [ shadow-wrapped ];
+    services.xserver.displayManager.sessionPackages =
+      mkIf cfg.provideXSession [ shadow-wrapped ];
 
     # Add GPU fixes
-    environment.etc."drirc" = mkIf (!cfg.disableGpuFix) { 
-      source = drirc; 
-    };
+    environment.etc."drirc" = mkIf (!cfg.disableGpuFix) { source = drirc; };
 
     # Force VA Driver
-    environment.variables = mkIf (cfg.forceDriver != "") {
-      LIBVA_DRIVER_NAME = [cfg.forceDriver];
-    };
+    environment.variables =
+      mkIf (cfg.forceDriver != "") { LIBVA_DRIVER_NAME = [ cfg.forceDriver ]; };
   };
 }

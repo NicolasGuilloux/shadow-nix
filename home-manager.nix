@@ -19,11 +19,8 @@ let
     xsessionDesktopFile = cfg.provideXSession;
     launchArgs = cfg.launchArgs;
   };
-in
-{
+in {
   imports = [ ./cfg.nix ];
 
-  config = mkIf cfg.enable {
-    home.packages = [ shadow-wrapped ];
-  };
+  config = mkIf cfg.enable { home.packages = [ shadow-wrapped ]; };
 }

@@ -1,18 +1,10 @@
-{ stdenv
-, lib
-, ruby
-, shadow-package
-, symlinkJoin
-, writeScriptBin
-, writeShellScriptBin
-, makeWrapper
-, compton
+{ stdenv, lib, ruby, shadow-package, symlinkJoin, writeScriptBin
+, writeShellScriptBin, makeWrapper, compton
 
-, xsessionDesktopFile ? false
-, preferredScreens ? []
-, shadowChannel ? "preprod"
-, launchArgs ? ""
-}:
+, writeText, openbox, feh, alacritty
+
+, xsessionDesktopFile ? false, preferredScreens ? [ ], shadowChannel ? "preprod"
+, launchArgs ? "" }:
 
 with lib;
 
@@ -27,28 +19,51 @@ let
     (connected-preferred).each { |screen| `xrandr --output #{screen} --off` }
   '';
 
-  sessionCommandWrapper = writeShellScriptBin "shadow-${shadowChannel}-session" ''
-    set -o errexit
+  sessionCommandWrapperSubCmd =
+    writeShellScriptBin "shadow-${shadowChannel}-session-subcmd" ''
+      set -o errexit
 
-    # Managing connected screens
-    CONNECTED_SCREENS=`xrandr | grep -v "disconnected" | grep "connected" | awk '{ print $1 }'`
-    PREFERRED_SCREENS=(${builtins.concatStringsSep " " preferredScreens})
-    ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS"
+      # Managing connected screens
+      CONNECTED_SCREENS=`xrandr | grep -v "disconnected" | grep "connected" | awk '{ print $1 }'`
+      PREFERRED_SCREENS=(${builtins.concatStringsSep " " preferredScreens})
+      ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS"
 
-    # Start VSync
-    ${compton}/bin/compton --vsync -b --backend glx
+      # Start VSync
+      ${compton}/bin/compton --vsync -b --backend glx
 
-    exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
-  '';
+      # Display a beautiful wallpaper
+      ${feh}/bin/feh --bg-scale ${./openbox/background.png}
 
-  standaloneSessionCommandWrapper = writeShellScriptBin "shadow-${shadowChannel}-standalone-session" ''
-    set -o errexit
-    exec startx ${sessionCommandWrapper}/bin/shadow-${shadowChannel}-session "$@"
-  '';
+      exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
+    '';
+
+  sessionCommandWrapper =
+    let
+      menuFile = writeText "obmenu.xml" (import ./openbox/obmenu.nix {
+        shadowCmd = "${shadow-package}/bin/shadow-${shadowChannel}";
+        terminalCmd = "${alacritty}/bin/alacritty";
+      });
+      obConfigFile = writeText "obconfig.xml" (import ./openbox/obconfig.nix { inherit menuFile; });
+
+    in writeShellScriptBin "shadow-${shadowChannel}-session" ''
+      set -o errexit
+
+      exec ${openbox}/bin/openbox --config-file ${obConfigFile} \
+        --startup ${sessionCommandWrapperSubCmd}/bin/shadow-${shadowChannel}-session-subcmd
+    '';
+
+  standaloneSessionCommandWrapper =
+    writeShellScriptBin "shadow-${shadowChannel}-standalone-session" ''
+      set -o errexit
+      exec startx ${sessionCommandWrapper}/bin/shadow-${shadowChannel}-session "$@"
+    '';
 in symlinkJoin {
   name = "shadow-${shadowChannel}-${shadow-package.version}";
 
-  paths = [ shadow-package ] ++ (optional xsessionDesktopFile [sessionCommandWrapper standaloneSessionCommandWrapper]);
+  paths = [ shadow-package ] ++ (optional xsessionDesktopFile [
+    sessionCommandWrapper
+    standaloneSessionCommandWrapper
+  ]);
 
   nativeBuildInputs = [ makeWrapper ];
 
