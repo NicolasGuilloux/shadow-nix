@@ -1,24 +1,22 @@
-{ stdenv, lib
-, runCommand, yq, fetchurl
-, makeWrapper, autoPatchelfHook, wrapGAppsHook, zlib, runtimeShell
+{ stdenv, lib, runCommand, yq, fetchurl, makeWrapper, autoPatchelfHook
+, wrapGAppsHook, zlib, runtimeShell
 
-, xorg, alsaLib, libbsd, libopus, openssl, libva, pango, cairo
-, libuuid, nspr, nss, cups, expat, atk, at-spi2-atk, gtk3, gdk-pixbuf
-, libsecret, systemd, pulseaudio, libGL, dbus, libnghttp2, libidn2
-, libpsl, libkrb5, openldap, rtmpdump
+, xorg, alsaLib, libbsd, libopus, openssl, libva, pango, cairo, libuuid, nspr
+, nss, cups, expat, atk, at-spi2-atk, gtk3, gdk-pixbuf, libsecret, systemd
+, pulseaudio, libGL, dbus, libnghttp2, libidn2, libpsl, libkrb5, openldap
+, rtmpdump
 
-, enableDiagnostics ? false
-, extraClientParameters ? []
-, shadowChannel ? "preprod"
-, desktopLauncher ? true
-}:
+, enableDiagnostics ? false, extraClientParameters ? [ ]
+, shadowChannel ? "preprod", desktopLauncher ? true }:
 
 with lib;
 
 let
   # Reading dynamic versions information from upstream update system
-  latestVersion = builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/${shadowChannel}/linux/ubuntu_18.04/latest-linux.yml";
-  latestVersionJson = (runCommand "transform" { buildInputs = [yq]; } "cat ${latestVersion} | yq -j . > $out");
+  latestVersion = builtins.fetchurl
+    "https://storage.googleapis.com/shadow-update/launcher/${shadowChannel}/linux/ubuntu_18.04/latest-linux.yml";
+  latestVersionJson = (runCommand "transform" { buildInputs = [ yq ]; }
+    "cat ${latestVersion} | yq -j . > $out");
   source = builtins.fromJSON (builtins.readFile latestVersionJson);
 
   # This permit to display errors that could not be displayed otherwise
@@ -36,33 +34,58 @@ let
 
     chmod +x $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow
   '';
-in
-stdenv.mkDerivation rec {
+in stdenv.mkDerivation rec {
   pname = "shadow-${shadowChannel}";
   version = source.version;
 
   src = fetchurl {
-    url = "https://update.shadow.tech/launcher/${shadowChannel}/linux/ubuntu_18.04/${source.path}";
+    url =
+      "https://update.shadow.tech/launcher/${shadowChannel}/linux/ubuntu_18.04/${source.path}";
     hash = "sha512-${source.sha512}";
   };
 
-  binaryName = (if shadowChannel == "prod" then "shadow" else "shadow-${shadowChannel}");
+  binaryName =
+    (if shadowChannel == "prod" then "shadow" else "shadow-${shadowChannel}");
 
-  nativeBuildInputs = [
-    autoPatchelfHook
-    wrapGAppsHook
-    makeWrapper
-  ];
+  nativeBuildInputs = [ autoPatchelfHook wrapGAppsHook makeWrapper ];
 
   buildInputs = [
     stdenv.cc.cc.lib
 
-    xorg.libX11 xorg.libxcb xorg.libXrandr xorg.libXcomposite xorg.libXdamage
-    xorg.libXScrnSaver xorg.libXcursor xorg.libXfixes xorg.libXi xorg.libXtst
+    xorg.libX11
+    xorg.libxcb
+    xorg.libXrandr
+    xorg.libXcomposite
+    xorg.libXdamage
+    xorg.libXScrnSaver
+    xorg.libXcursor
+    xorg.libXfixes
+    xorg.libXi
+    xorg.libXtst
 
-    cairo pango alsaLib libbsd libopus openssl libva zlib libuuid nspr
-    nss cups expat atk at-spi2-atk gtk3 gdk-pixbuf libnghttp2 libidn2
-    libpsl libkrb5 openldap rtmpdump
+    cairo
+    pango
+    alsaLib
+    libbsd
+    libopus
+    openssl
+    libva
+    zlib
+    libuuid
+    nspr
+    nss
+    cups
+    expat
+    atk
+    at-spi2-atk
+    gtk3
+    gdk-pixbuf
+    libnghttp2
+    libidn2
+    libpsl
+    libkrb5
+    openldap
+    rtmpdump
   ];
 
   runtimeDependencies = [
@@ -95,18 +118,18 @@ stdenv.mkDerivation rec {
     rm -r ./squashfs-root/usr/lib
     rm ./squashfs-root/AppRun
     mv ./squashfs-root $out/opt/shadow-${shadowChannel}
-  ''
-  + optionalString enableDiagnostics diagTxt
-  + ''
+  '' + optionalString enableDiagnostics diagTxt + ''
     wrapProgram $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
-      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${optionalString (extraClientParameters != []) ''
-        ${concatMapStrings (x: " --add-flags '" + x + "'") extraClientParameters}
-      ''}
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${
+        optionalString (extraClientParameters != [ ]) ''
+          ${concatMapStrings (x: " --add-flags '" + x + "'")
+          extraClientParameters}
+        ''
+      }
 
     makeWrapper $out/opt/shadow-${shadowChannel}/${binaryName} $out/bin/shadow-${shadowChannel} \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
-  ''
-  + optionalString desktopLauncher ''
+  '' + optionalString desktopLauncher ''
     substitute $out/opt/shadow-${shadowChannel}/${binaryName}.desktop \
       $out/share/applications/${binaryName}.desktop \
       --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
