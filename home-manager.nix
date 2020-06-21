@@ -18,6 +18,9 @@ let
     preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
     launchArgs = cfg.launchArgs;
+
+    menuOverride = cfg.customSessionMenu;
+    customStartScript = cfg.customSessionStartScript;
   };
 in {
   imports = [ ./cfg.nix ];

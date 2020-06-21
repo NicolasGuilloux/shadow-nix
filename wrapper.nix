@@ -1,7 +1,9 @@
-{ stdenv, lib, ruby, shadow-package, symlinkJoin, writeScriptBin
+{ stdenv, lib, callPackage, ruby, shadow-package, symlinkJoin, writeScriptBin
 , writeShellScriptBin, makeWrapper, compton
 
-, writeText, openbox, feh, alacritty
+, openbox, feh, pavucontrol, alacritty
+, menuOverride ? null
+, customStartScript ? ""
 
 , xsessionDesktopFile ? false, preferredScreens ? [ ], shadowChannel ? "preprod"
 , launchArgs ? "" }:
@@ -34,17 +36,22 @@ let
       # Display a beautiful wallpaper
       ${feh}/bin/feh --bg-scale ${./openbox/background.png}
 
+      # Hook a script
+      ${customStartScript}
+
       exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
     '';
 
   sessionCommandWrapper =
     let
-      menuFile = writeText "obmenu.xml" (import ./openbox/obmenu.nix {
-        shadowCmd = "${shadow-package}/bin/shadow-${shadowChannel}";
-        terminalCmd = "${alacritty}/bin/alacritty";
+      menuFile = (callPackage ./openbox/obmenu.nix {
+        menu = (if menuOverride != null then menuOverride else {
+          "Shadow" = "${shadow-package}/bin/shadow-${shadowChannel}";
+          "Sound" = "${pavucontrol}/bin/pavucontrol";
+          "Terminal" = "${alacritty}/bin/alacritty";
+        });
       });
-      obConfigFile = writeText "obconfig.xml" (import ./openbox/obconfig.nix { inherit menuFile; });
-
+      obConfigFile = (callPackage ./openbox/obconfig.nix { inherit menuFile; });
     in writeShellScriptBin "shadow-${shadowChannel}-session" ''
       set -o errexit
 

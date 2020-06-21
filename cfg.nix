@@ -86,5 +86,24 @@ with lib;
         Disable the GPU fixes for Shadow related to the color bit size.
       '';
     };
+
+    customSessionMenu = mkOption {
+      default = null;
+      example = ''{ "myProgram" = "myProgramCommand" }'';
+      description = ''
+        Sets the content of the menu provided in the Openbox bundled standalone session.
+      '';
+    };
+
+    customSessionStartScript = mkOption {
+      type = types.str;
+      default = "";
+      example = ''
+        tint2 &
+      '';
+      description = ''
+        Custom script executed before shadow is launched in the Openbox bundled standalone session.
+      '';
+    };
   };
 }

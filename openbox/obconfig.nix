@@ -1,6 +1,6 @@
-{ menuFile }:
+{ writeText, menuFile }:
 
-''
+writeText "obconfig.xml" ''
 <?xml version="1.0" encoding="UTF-8"?>
 
 <openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">

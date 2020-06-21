@@ -1,56 +1,43 @@
-{ shadowCmd, terminalCmd }:
+{ lib, writeText, openbox, menu }:
 
-''
-<?xml version="1.0" encoding="UTF-8"?>
+let
+  menuItem = (name: value: ''
+    <item label="${name}">
+        <action name="Execute">
+            <command>${value}</command>
+        </action>
+    </item>
+  '');
+in writeText "obconfig.xml" ''
+  <?xml version="1.0" encoding="UTF-8"?>
 
-<openbox_menu xmlns="http://openbox.org/3.4/menu">
-
+  <openbox_menu xmlns="http://openbox.org/3.4/menu">
     <menu id="root-menu" label="ShadowOS">
-        <separator label="Applications" />
+      <separator label="Applications" />
+      
+      ${lib.strings.concatStringsSep "\n" (lib.attrsets.mapAttrsToList menuItem menu)}
 
-        <item label="Shadow">
-            <action name="Execute">
-                <command>${shadowCmd}</command>
-            </action>
+      <separator />
+
+      <menu id="exit-menu" label="Exit">
+        <item label="Log Out">
+          <action name="Execute">
+            <command>${openbox}/bin/openbox --exit</command>
+          </action>
         </item>
 
-        <separator label="Configurations" />
-
-        <item label="Sound">
-            <action name="Execute">
-                <command>pavucontrol</command>
-            </action>
+        <item label="Shutdown">
+          <action name="Execute">
+            <command>systemctl poweroff</command>
+          </action>
         </item>
 
-        <separator label="System" />
-        <item label="Terminal">
-            <action name="Execute">
-                <command>${terminalCmd}</command>
-            </action>
+        <item label="Restart">
+          <action name="Execute">
+            <command>systemctl reboot</command>
+          </action>
         </item>
-
-        <separator />
-
-        <menu id="exit-menu" label="Exit">
-            <item label="Log Out">
-                <action name="Execute">
-                    <command>openbox --exit</command>
-                </action>
-            </item>
-
-            <item label="Shutdown">
-                <action name="Execute">
-                    <command>systemctl poweroff</command>
-                </action>
-            </item>
-
-            <item label="Restart">
-                <action name="Execute">
-                        <command>systemctl reboot</command>
-                </action>
-            </item>
-        </menu>
+      </menu>
     </menu>
-
-</openbox_menu>
+  </openbox_menu>
 ''
