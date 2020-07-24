@@ -1,4 +1,4 @@
-{ stdenv, lib, callPackage, ruby, shadow-package, symlinkJoin, writeScriptBin
+{ stdenv, lib, callPackage, shadow-package, symlinkJoin, writeScriptBin
 , writeShellScriptBin, makeWrapper, compton
 
 , openbox, feh, pavucontrol, alacritty
