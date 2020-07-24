@@ -17,7 +17,6 @@ let
     shadow-package = shadow-package;
 
     shadowChannel = cfg.channel;
-    preferredScreens = cfg.preferredScreens;
     xsessionDesktopFile = cfg.provideXSession;
     launchArgs = cfg.launchArgs;
 
