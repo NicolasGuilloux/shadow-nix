@@ -96,6 +96,7 @@ in stdenv.mkDerivation rec {
     dbus
     libsecret
     xorg.libXinerama
+    libva
   ];
 
   unpackPhase = ''

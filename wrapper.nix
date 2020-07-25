@@ -1,34 +1,19 @@
-{ stdenv, lib, callPackage, ruby, shadow-package, symlinkJoin, writeScriptBin
+{ stdenv, lib, callPackage, shadow-package, symlinkJoin, writeScriptBin
 , writeShellScriptBin, makeWrapper, compton
 
 , openbox, feh, pavucontrol, alacritty
 , menuOverride ? null
 , customStartScript ? ""
 
-, xsessionDesktopFile ? false, preferredScreens ? [ ], shadowChannel ? "preprod"
+, xsessionDesktopFile ? false, shadowChannel ? "preprod"
 , launchArgs ? "" }:
 
 with lib;
 
 let
-  # Logic of screen selection with a basic ruby script.
-  # (Handling array conparaisons in plain bash are painfull and a waste of time...)
-  screenManager = writeScriptBin "set-shadow-screens" ''
-    #!${ruby}/bin/ruby
-    connected = ARGV[0].split("\n")
-    preferred = ARGV[1].split("\n")
-    exit if (connected-preferred).count == connected.count
-    (connected-preferred).each { |screen| `xrandr --output #{screen} --off` }
-  '';
-
   sessionCommandWrapperSubCmd =
     writeShellScriptBin "shadow-${shadowChannel}-session-subcmd" ''
       set -o errexit
-
-      # Managing connected screens
-      CONNECTED_SCREENS=`xrandr | grep -v "disconnected" | grep "connected" | awk '{ print $1 }'`
-      PREFERRED_SCREENS=(${builtins.concatStringsSep " " preferredScreens})
-      ${screenManager}/bin/set-shadow-screens "$CONNECTED_SCREENS" "$PREFERRED_SCREENS"
 
       # Start VSync
       ${compton}/bin/compton --vsync -b --backend glx

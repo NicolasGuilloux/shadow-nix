@@ -38,18 +38,6 @@ with lib;
       '';
     };
 
-    preferredScreens = mkOption {
-      type = types.listOf (types.str);
-      default = [ ];
-      example = [ "HDMI1" ];
-      description = ''
-        Name of preferred screens, ordered by name. If one screen currently plugged matches
-        the listed screens in this options, it shutdowns all other screens.
-        This feature use xrandr, thus you must use xrandr screen names.
-        This can be useful for laptops with changing multi-heads setups.
-      '';
-    };
-
     channel = mkOption {
       type = types.enum [ "prod" "preprod" "testing" ];
       default = "prod";
