@@ -1,11 +1,11 @@
 { stdenv, lib, callPackage, shadow-package, symlinkJoin, writeScriptBin
 , writeShellScriptBin, makeWrapper, compton
 
-, openbox, feh, pavucontrol, alacritty
+, openbox, feh, pavucontrol, alacritty, xorg
 , menuOverride ? null
 , customStartScript ? ""
 
-, xsessionDesktopFile ? false, shadowChannel ? "preprod"
+, provideSession ? false, shadowChannel ? "preprod"
 , launchArgs ? "" }:
 
 with lib;
@@ -15,14 +15,14 @@ let
     writeShellScriptBin "shadow-${shadowChannel}-session-subcmd" ''
       set -o errexit
 
+      # Hook a script
+      ${customStartScript}
+
       # Start VSync
       ${compton}/bin/compton --vsync -b --backend glx
 
       # Display a beautiful wallpaper
       ${feh}/bin/feh --bg-scale ${./openbox/background.png}
-
-      # Hook a script
-      ${customStartScript}
 
       exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
     '';
@@ -44,22 +44,26 @@ let
         --startup ${sessionCommandWrapperSubCmd}/bin/shadow-${shadowChannel}-session-subcmd
     '';
 
+  sessionBinaryName = "shadow-${shadowChannel}-standalone-session";
+
   standaloneSessionCommandWrapper =
-    writeShellScriptBin "shadow-${shadowChannel}-standalone-session" ''
+    writeShellScriptBin sessionBinaryName ''
       set -o errexit
-      exec startx ${sessionCommandWrapper}/bin/shadow-${shadowChannel}-session "$@"
+      exec ${xorg.xinit}/bin/startx ${sessionCommandWrapper}/bin/shadow-${shadowChannel}-session "$@"
     '';
 in symlinkJoin {
+  inherit sessionBinaryName;
+
   name = "shadow-${shadowChannel}-${shadow-package.version}";
 
-  paths = [ shadow-package ] ++ (optional xsessionDesktopFile [
+  paths = [ shadow-package ] ++ (optional provideSession [
     sessionCommandWrapper
     standaloneSessionCommandWrapper
   ]);
 
   nativeBuildInputs = [ makeWrapper ];
 
-  postBuild = optionalString xsessionDesktopFile ''
+  postBuild = optionalString provideSession ''
     mkdir -p $out/share/xsessions
     substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
       $out/share/xsessions/${shadow-package.binaryName}.desktop \

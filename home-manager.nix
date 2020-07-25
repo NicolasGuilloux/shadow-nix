@@ -15,7 +15,7 @@ let
     shadow-package = shadow-package;
 
     shadowChannel = cfg.channel;
-    xsessionDesktopFile = cfg.provideXSession;
+    provideSession = cfg.provideXSession;
     launchArgs = cfg.launchArgs;
 
     menuOverride = cfg.customSessionMenu;

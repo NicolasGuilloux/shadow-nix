@@ -38,6 +38,44 @@ with lib;
       '';
     };
 
+    provideSystemdSession = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = ''
+          Provides an autonomous systemd session for Shadow.
+        '';
+      };
+
+      tty = mkOption {
+        type = types.str;
+        default = "8";
+        example = "1";
+        description = ''
+          Select the TTY where to start the systemd session
+        '';
+      };
+
+      user = mkOption {
+        type = types.str;
+        default = "";
+        example = "myself";
+        description = ''
+          Select the user with which the session is started
+        '';
+      };
+
+      onClosingTty = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "1";
+        description = ''
+          Select the TTY to switch to when exiting
+        '';
+      };
+    };
+
     channel = mkOption {
       type = types.enum [ "prod" "preprod" "testing" ];
       default = "prod";
