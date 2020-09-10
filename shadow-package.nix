@@ -4,7 +4,7 @@
 , xorg, alsaLib, libbsd, libopus, openssl, libva, pango, cairo, libuuid, nspr
 , nss, cups, expat, atk, at-spi2-atk, gtk3, gdk-pixbuf, libsecret, systemd
 , pulseaudio, libGL, dbus, libnghttp2, libidn2, libpsl, libkrb5, openldap
-, rtmpdump
+, rtmpdump, libinput
 
 , enableDiagnostics ? false, extraClientParameters ? [ ]
 , shadowChannel ? "preprod", desktopLauncher ? true }:
@@ -68,6 +68,7 @@ in stdenv.mkDerivation rec {
     alsaLib
     libbsd
     libopus
+    libinput
     openssl
     libva
     zlib
@@ -90,7 +91,8 @@ in stdenv.mkDerivation rec {
 
   runtimeDependencies = [
     stdenv.cc.cc.lib
-    systemd.lib
+    systemd
+    libinput
     pulseaudio
     libGL
     dbus
@@ -115,6 +117,8 @@ in stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/opt
     mv ./squashfs-root/usr/share $out/
+    mkdir -p $out/lib
+    ln -s ${lib.getLib systemd}/lib/libudev.so.1 $out/lib/libudev.so.1
     mkdir -p $out/share/applications
     rm -r ./squashfs-root/usr/lib
     rm ./squashfs-root/AppRun
