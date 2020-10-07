@@ -1,4 +1,4 @@
-{ stdenv, lib, runCommand, yq, fetchurl, makeWrapper, autoPatchelfHook
+{ stdenv, lib, runCommand, yq, jq, fetchurl, makeWrapper, autoPatchelfHook
 , wrapGAppsHook, zlib, runtimeShell
 
 , xorg, alsaLib, libbsd, libopus, openssl, libva, pango, cairo, libuuid, nspr
@@ -15,7 +15,7 @@ let
   # Reading dynamic versions information from upstream update system
   latestVersion = builtins.fetchurl
     "https://storage.googleapis.com/shadow-update/launcher/${shadowChannel}/linux/ubuntu_18.04/latest-linux.yml";
-  latestVersionJson = (runCommand "transform" { buildInputs = [ yq ]; }
+  latestVersionJson = (runCommand "transform" { buildInputs = [ yq jq ]; }
     "cat ${latestVersion} | yq -j . > $out");
   source = builtins.fromJSON (builtins.readFile latestVersionJson);
 
