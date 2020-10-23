@@ -117,13 +117,19 @@ in stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/opt
     mv ./squashfs-root/usr/share $out/
+
+    # Libraries
     mkdir -p $out/lib
     ln -s ${lib.getLib systemd}/lib/libudev.so.1 $out/lib/libudev.so.1
     mkdir -p $out/share/applications
     rm -r ./squashfs-root/usr/lib
+
+    # Application
     rm ./squashfs-root/AppRun
     mv ./squashfs-root $out/opt/shadow-${shadowChannel}
   '' + optionalString enableDiagnostics diagTxt + ''
+
+    # Wrap Renderer
     wrapProgram $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${
         optionalString (extraClientParameters != [ ]) ''
@@ -132,8 +138,17 @@ in stdenv.mkDerivation rec {
         ''
       }
 
+    # Wrap Renderer into binary
+    makeWrapper \
+      $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
+      $out/bin/shadow-${shadowChannel}-renderer \
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
+
+    # Wrap launcher
     makeWrapper $out/opt/shadow-${shadowChannel}/${binaryName} $out/bin/shadow-${shadowChannel} \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
+
+    
   '' + optionalString desktopLauncher ''
     substitute $out/opt/shadow-${shadowChannel}/${binaryName}.desktop \
       $out/share/applications/${binaryName}.desktop \
