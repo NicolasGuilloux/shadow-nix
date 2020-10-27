@@ -131,7 +131,12 @@ in stdenv.mkDerivation rec {
 
     # Wrap Renderer
     wrapProgram $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
-      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${
+      --run "cd $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/" \
+      --prefix LD_LIBRARY_PATH : "$out/opt/shadow-${shadowChannel}" \
+      --prefix LD_LIBRARY_PATH : "$out/lib" \
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} \
+      --add-flags "--no-usb" \
+      --add-flags "--agent \"Linux;x64;Chrome 80.0.3987.165;latest\"" ${
         optionalString (extraClientParameters != [ ]) ''
           ${concatMapStrings (x: " --add-flags '" + x + "'")
           extraClientParameters}
