@@ -22,7 +22,7 @@ let
     customStartScript = cfg.customSessionStartScript;
   };
 in {
-  imports = [ ./cfg.nix ];
+  imports = [ ./config.nix ];
 
   config = mkIf cfg.enable { home.packages = [ shadow-wrapped ]; };
 }

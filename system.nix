@@ -6,7 +6,7 @@ let
   cfg = config.programs.shadow-client;
 
   # Declare the package with the appropriate configuration
-  shadow-package = pkgs.callPackage ./shadow-package.nix {
+  shadow-package = pkgs.callPackage ./default.nix {
     shadowChannel = cfg.channel;
     enableDiagnostics = cfg.enableDiagnostics;
     desktopLauncher = cfg.enableDesktopLauncher;
@@ -31,7 +31,7 @@ let
   } + "/resources/drirc");
 in {
   # Import the configuration
-  imports = [ ./cfg.nix ];
+  imports = [ ./config.nix ./systemd-session ./x-session];
 
   config = mkIf cfg.enable {
     # Install Shadow wrapper
@@ -40,39 +40,6 @@ in {
     # Add Shadow session
     services.xserver.displayManager.sessionPackages =
       mkIf cfg.provideXSession [ shadow-wrapped ];
-
-    systemd.services.shadow-tech = 
-      let
-        sess = cfg.provideSystemdSession;
-      in mkIf sess.enable {
-        enable = true;
-        wants = [ "systemd-machined.service" ];
-        after = [
-          "rc-local.service"
-          "systemd-machined.service"
-          "systemd-user-sessions.service"
-          "systemd-logind.service"
-        ];
-        serviceConfig = {
-          ExecStartPre = "${config.system.path}/bin/chvt ${sess.tty}";
-          ExecStart =
-            "${pkgs.dbus}/bin/dbus-run-session ${shadow-wrapped}/bin/${shadow-wrapped.sessionBinaryName}";
-          ExecStopPost =
-            mkIf (sess.onClosingTty != null) "${config.system.path}/bin/chvt ${sess.onClosingTty}";
-
-          TTYPath = "/dev/tty${sess.tty}";
-          TTYReset = "yes";
-          TTYVHangup = "yes";
-          TTYVTDisallocate = "yes";
-          PAMName = "login";
-          User = sess.user;
-          WorkingDirectory = "/home/${sess.user}";
-          StandardInput = "tty";
-          StandardError = "journal";
-          StandardOutput = "journal";
-          Restart = "no";
-        };
-      };
 
     # Add GPU fixes
     environment.etc."drirc" = mkIf (!cfg.disableGpuFix) { source = drirc; };
