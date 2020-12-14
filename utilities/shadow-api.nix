@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 /* Helper to interact with the Shadow API
 
@@ -18,9 +18,9 @@ rec {
   */
   getLatestInfo = channel: 
     let
-        yamlInfo = builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/${shadowChannel}/linux/ubuntu_18.04/latest-linux.yml";
-        jsonInfo = (runCommand "transform" { buildInputs = [ yq jq ]; } "cat ${yamlInfo} | yq -j . > $out");
-        info = builtins.fromJSON (builtins.readFile jsonIfo);
+        yamlInfo = builtins.fetchurl "https://storage.googleapis.com/shadow-update/launcher/${channel}/linux/ubuntu_18.04/latest-linux.yml";
+        jsonInfo = (pkgs.runCommand "transform" { buildInputs = with pkgs; [ yq jq ]; } "cat ${yamlInfo} | yq -j . > $out");
+        info = builtins.fromJSON (builtins.readFile jsonInfo);
     in
     { 
         channel = channel;
@@ -39,5 +39,4 @@ rec {
       url = "https://update.shadow.tech/launcher/${info.channel}/linux/ubuntu_18.04/${info.path}";
       hash = "sha512-${info.sha512}"; 
   };
-
 }

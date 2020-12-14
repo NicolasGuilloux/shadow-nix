@@ -25,13 +25,10 @@ with lib;
     startScript = mkOption {
       type = types.str;
       default = "";
-      example = ''
-        tint2 &
-      '';
+      example = "tint2 &";
       description = ''
         Custom script executed before shadow is launched in the Openbox bundled standalone session.
       '';
     };
   };
-
 }

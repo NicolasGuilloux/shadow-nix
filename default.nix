@@ -1,4 +1,4 @@
-{ stdenv, lib, runCommand, yq, jq, fetchurl, makeWrapper, autoPatchelfHook
+{ stdenv, lib, pkgs, runCommand, yq, jq, fetchurl, makeWrapper, autoPatchelfHook
 , wrapGAppsHook, zlib, runtimeShell
 
 , xorg, alsaLib, libbsd, libopus, openssl, libva, pango, cairo, libuuid, nspr
@@ -6,14 +6,14 @@
 , pulseaudio, libGL, dbus, libnghttp2, libidn2, libpsl, libkrb5, openldap
 , rtmpdump, libinput
 
-, enableDiagnostics ? false, extraClientParameters ? [ ]
+, enableDiagnostics ? false, extraClientParameters ? []
 , shadowChannel ? "prod", desktopLauncher ? true }:
 
 with lib;
 
 let
   # Import tools
-  utilities = (import ./utilities { inherit lib; });
+  utilities = (import ./utilities { inherit lib pkgs; });
   
   # Latest release information
   info = utilities.shadowApi.getLatestInfo shadowChannel;
@@ -99,9 +99,10 @@ in stdenv.mkDerivation rec {
   ''
     mkdir -p $out/opt
     mkdir -p $out/lib
-    mkdir -p $out/share/applications
 
     mv ./squashfs-root/usr/share $out/
+    mkdir -p $out/share/applications
+
     ln -s ${lib.getLib systemd}/lib/libudev.so.1 $out/lib/libudev.so.1
     rm -r ./squashfs-root/usr/lib
     rm ./squashfs-root/AppRun
@@ -109,7 +110,7 @@ in stdenv.mkDerivation rec {
   '' + 
 
   # Add debug wrapper
-  optionalString enableDiagnostics (utilities.debug.wrapRenderer info.channel runtimeShell) + 
+  optionalString enableDiagnostics (utilities.debug.wrapRenderer info.channel) + 
 
   # Wrap renderer and launcher
   ''

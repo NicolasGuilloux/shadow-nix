@@ -1,74 +1,30 @@
-{ stdenv, lib, callPackage, shadow-package, symlinkJoin, writeScriptBin
-, writeShellScriptBin, makeWrapper, compton
-
-, openbox, feh, pavucontrol, alacritty, xorg
-, menuOverride ? null
-, customStartScript ? ""
-
-, provideSession ? false, shadowChannel ? "preprod"
-, launchArgs ? "" }:
+{ config, pkgs, lib, ... }:
 
 with lib;
 
 let
-  sessionCommandWrapperSubCmd =
-    writeShellScriptBin "shadow-${shadowChannel}-session-subcmd" ''
-      set -o errexit
+  cfg = config.programs.shadow-client;
+  provideSession = cfg.x-session.enable || cfg.systemd-session.enable;
 
-      # Hook a script
-      ${customStartScript}
+  # Declare the package with the appropriate configuration
+  shadow-package = pkgs.callPackage ../default.nix {
+    shadowChannel = cfg.channel;
+    enableDiagnostics = cfg.enableDiagnostics;
+    desktopLauncher = cfg.enableDesktopLauncher;
+  };
 
-      # Start VSync
-      ${compton}/bin/compton --vsync -b --backend glx
+  # Declare the wrapper with the appropriate configuration
+  shadow-wrapped = pkgs.callPackage ./wrapper.nix {
+    shadow-package = shadow-package;
 
-      # Display a beautiful wallpaper
-      ${feh}/bin/feh --bg-scale ${./openbox/background.png}
+    shadowChannel = cfg.channel;
+    provideSession = provideSession;
+    launchArgs = cfg.launchArgs;
 
-      exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
-    '';
+    menuOverride = cfg.x-session.additionalMenuEntries;
+    customStartScript = cfg.x-session.startScript;
+  };
+in {
+  imports = [ ./config.nix ];
 
-  sessionCommandWrapper =
-    let
-      menuFile = (callPackage ./openbox/obmenu.nix {
-        menu = (if menuOverride != null then menuOverride else {
-          "Shadow" = "${shadow-package}/bin/shadow-${shadowChannel}";
-          "Sound" = "${pavucontrol}/bin/pavucontrol";
-          "Terminal" = "${alacritty}/bin/alacritty";
-        });
-      });
-      obConfigFile = (callPackage ./openbox/obconfig.nix { inherit menuFile; });
-    in writeShellScriptBin "shadow-${shadowChannel}-session" ''
-      set -o errexit
-
-      exec ${openbox}/bin/openbox --config-file ${obConfigFile} \
-        --startup ${sessionCommandWrapperSubCmd}/bin/shadow-${shadowChannel}-session-subcmd
-    '';
-
-  sessionBinaryName = "shadow-${shadowChannel}-standalone-session";
-
-  standaloneSessionCommandWrapper =
-    writeShellScriptBin sessionBinaryName ''
-      set -o errexit
-      exec ${xorg.xinit}/bin/startx ${sessionCommandWrapper}/bin/shadow-${shadowChannel}-session "$@"
-    '';
-in symlinkJoin {
-  inherit sessionBinaryName;
-
-  name = "shadow-${shadowChannel}-${shadow-package.version}";
-
-  paths = [ shadow-package ] ++ (optional provideSession [
-    sessionCommandWrapper
-    standaloneSessionCommandWrapper
-  ]);
-
-  nativeBuildInputs = [ makeWrapper ];
-
-  postBuild = optionalString provideSession ''
-    mkdir -p $out/share/xsessions
-    substitute ${shadow-package}/opt/shadow-${shadowChannel}/${shadow-package.binaryName}.desktop \
-      $out/share/xsessions/${shadow-package.binaryName}.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}-session"
-  '';
-
-  passthru.providedSessions = [ shadow-package.binaryName ];
 }

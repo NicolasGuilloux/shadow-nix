@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 /* Helper to debug the Shadow app */
 rec {
@@ -8,11 +8,11 @@ rec {
        wrapRenderer "preprod"
        => (string)
   */
-  wrapRenderer = channel: runtimeShell: ''
+  wrapRenderer = channel: ''
     mv $out/opt/shadow-${channel}/resources/app.asar.unpacked/release/native/Shadow \
       $out/opt/shadow-${channel}/resources/app.asar.unpacked/release/native/.Shadow-Orig
 
-    echo "#!${runtimeShell}" > $out/opt/shadow-${channel}/resources/app.asar.unpacked/release/native/Shadow
+    echo "#!${pkgs.runtimeShell}" > $out/opt/shadow-${channel}/resources/app.asar.unpacked/release/native/Shadow
 
     echo "echo \"\$@\" > /tmp/shadow.current_cmd" >> \
       $out/opt/shadow-${channel}/resources/app.asar.unpacked/release/native/Shadow

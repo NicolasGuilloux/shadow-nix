@@ -4,6 +4,7 @@ with lib;
 
 let
   cfg = config.programs.shadow-client;
+  utilities = import ./utilities { inherit lib pkgs; };
 
   # Declare the package with the appropriate configuration
   shadow-package = pkgs.callPackage ./default.nix {
@@ -12,40 +13,24 @@ let
     desktopLauncher = cfg.enableDesktopLauncher;
   };
 
-  # Declare the wrapper with the appropriate configuration
-  shadow-wrapped = pkgs.callPackage ./wrapper.nix {
-    shadow-package = shadow-package;
-
-    shadowChannel = cfg.channel;
-    provideSession = cfg.provideXSession || cfg.provideSystemdSession.enable;
-    launchArgs = cfg.launchArgs;
-
-    menuOverride = cfg.customSessionMenu;
-    customStartScript = cfg.customSessionStartScript;
-  };
-
   # Drirc file
-  drirc = (fetchGit {
-    url = "https://github.com/NicolasGuilloux/blade-shadow-beta";
-    ref = "master";
-  } + "/resources/drirc");
+  drirc = utilities.files.drirc;
 in {
   # Import the configuration
-  imports = [ ./config.nix ./systemd-session ./x-session];
+  imports = [ ./config.nix ./x-session ./systemd-session ];
 
-  config = mkIf cfg.enable {
+  # By default, if you import this file, the Shadow app will be installed
+  programs.shadow-client.enable = mkDefault true;
+
+  # Enables
+  environment = mkIf cfg.enable {
     # Install Shadow wrapper
-    environment.systemPackages = mkIf cfg.enableDesktopLauncher [ shadow-wrapped ];
-
-    # Add Shadow session
-    services.xserver.displayManager.sessionPackages =
-      mkIf cfg.provideXSession [ shadow-wrapped ];
+    systemPackages = [ shadow-package ];
 
     # Add GPU fixes
-    environment.etc."drirc" = mkIf (!cfg.disableGpuFix) { source = drirc; };
+    etc.drirc.source = mkIf (cfg.enableGpuFix) drirc;
 
     # Force VA Driver
-    environment.variables =
-      mkIf (cfg.forceDriver != "") { LIBVA_DRIVER_NAME = [ cfg.forceDriver ]; };
+    variables.LIBVA_DRIVER_NAME = mkIf (cfg.forceDriver != "") [ cfg.forceDriver ];
   };
 }
