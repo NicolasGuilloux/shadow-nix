@@ -1,4 +1,9 @@
-# Porting Shadow to NixOS
+# Shadow on NixOS
+
+[![Actions Status](https://github.com/NicolasGuilloux/shadow-nix/workflows/HomeManager/badge.svg)](https://github.com/t/NicolasGuilloux/shadow-nix/actions)
+[![Actions Status](https://github.com/NicolasGuilloux/shadow-nix/workflows/SystemWide/badge.svg)](https://github.com/t/NicolasGuilloux/shadow-nix/actions)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/NicolasGuilloux/shadow-nix/issues)
+[![License](https://img.shields.io/badge/license-Unlicense-blue.svg)](LICENSE)
 
 The goal of this project is to provide Shadow on NixOS with a dynamic derivation to handle frequent updates.
 
@@ -8,7 +13,7 @@ The goal of this project is to provide Shadow on NixOS with a dynamic derivation
 
 ### Install
 
-Note that the ref value (`drv-v*.*.*`) should point to the lastest release. Checkout the tags to know it.
+Note that the ref value (`v*.*.*`) should point to the lastest release. Checkout the tags to know it. The version is the derivation one, not the launcher nor the streamer version. Installing any version of this repository will always install the latest version of the launcher available.
 
 If you want the latest package derivation, use `ref = "master"` instead.
 
@@ -19,7 +24,7 @@ In your `home.nix` :
 ```nix
 {
   imports = [
-    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/home-manager.nix")
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.0"; } + "/import/home-manager.nix")
   ];
 
   programs.shadow-client = {
@@ -36,7 +41,7 @@ In your `configuration.nix` :
 ```nix
 {
   imports = [
-    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/system.nix")
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.0"; } + "/import/system.nix")
   ];
 
   programs.shadow-client = {
