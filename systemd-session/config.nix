@@ -23,18 +23,18 @@ with lib;
     };
 
     tty = mkOption {
-      type = types.str;
-      default = "8";
-      example = "1";
+      type = types.int;
+      default = 8;
+      example = 1;
       description = ''
         Select the TTY where to start the systemd session
       '';
     };
 
     onClosingTty = mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr types.int;
       default = null;
-      example = "1";
+      example = 1;
       description = ''
         Select the TTY to switch to when exiting
       '';

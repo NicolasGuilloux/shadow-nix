@@ -15,8 +15,8 @@ with lib;
     };
 
     additionalMenuEntries = mkOption {
-      default = null;
-      example = ''{ "myProgram" = "myProgramCommand" }'';
+      default = {};
+      example = ''{ "myProgram" = "myProgramCommand"; }'';
       description = ''
         Sets the content of the menu provided in the Openbox bundled standalone session.
       '';

@@ -9,30 +9,29 @@ The goal of this project is to provide Shadow on NixOS with a dynamic derivation
 
 **This project is not affiliated with Blade, the company providing Shadow, in any way.**
 
-## How to use
+![Shadow loves Nix](./assets/images/shadow_loves_nix.svg)
 
-### Install
+## Table of content
+
+1. [Installation](#1-installation)
+    - [As a system package](#as-a-system-package)
+    - [As a home-manager package](#as-a-home-manager-package)
+2. [Configuration](#2-configuration)
+    - [Package configuration](#package-configuration)
+    - [XSession configuration](#xsession-configuration)
+    - [Systemd session configuration](#systemd-session-configuration)
+3. [About VAAPI](#3-about-vaapi)
+    - [An example for Intel and AMD GPU](#an-example-for-intel-and-amd-gpu)
+4. [Versioning](#4-versioning)
+5. [Contributing](#5-contributing)
+6. [License](#6-license)
+7. [Mentions](#7-mentions)
+
+## 1. Installation
 
 Note that the ref value (`v*.*.*`) should point to the lastest release. Checkout the tags to know it. The version is the derivation one, not the launcher nor the streamer version. Installing any version of this repository will always install the latest version of the launcher available.
 
 If you want the latest package derivation, use `ref = "master"` instead.
-
-#### As a home-manager package
-
-In your `home.nix` :
-
-```nix
-{
-  imports = [
-    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.0"; } + "/import/home-manager.nix")
-  ];
-
-  programs.shadow-client = {
-    enable = true;
-    channel = "preprod";
-  };
-}
-```
 
 #### As a system package
 
@@ -51,18 +50,64 @@ In your `configuration.nix` :
 }
 ```
 
-## Options
+#### As a home-manager package
 
- - `channel` : Choose a channel for the Shadow application. `prod` is the stable channel, `preprod` is the beta channel and `testing` is the alpha channel.
- - `enableDesktopLauncher` : `bool` / default `true` : Provides the desktop file for launching Shadow from current session (only works with Xorg sessions).
- - `enableDiagnostics` : `bool` / default `false` : The command used to execute the client will be output in a file in /tmp. The client will output its strace in /tmp. This is mainly used for diagnostics purposes (when an update breaks something).
- - `provideXSession` : `bool` / default `false` (requires system mode) : Provides a XSession desktop file for Shadow Launcher. Useful if you want to autostart it without any DE/WM.
- - `preferredScreens` : `bool` / default `[]` : Name of preferred screens, ordered by name. If one screen currently plugged matches the listed screens in this options, it shutdowns all other screens. This feature use xrandr, thus you must use xrandr screen names. This can be useful for laptops with changing multi-heads setups.
- - `forceDriver` : `enum` / default `""` : Force the VA driver used by Shadow using the LIBVA_DRIVER_NAME environment variable.
- - `disableGpuFix` : `bool` / default `false` : Disable the GPU fixes for Shadow related to the color bit size.
+In your `home.nix` :
+
+```nix
+{
+  imports = [
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.0"; } + "/import/home-manager.nix")
+  ];
+
+  programs.shadow-client = {
+    enable = true;
+    channel = "preprod";
+  };
+}
+```
+
+## 2. Configuration
+
+#### Package configuration
+
+This is the configuration of the package itself. You can set them via `programs.shadow-client.<key>`.
+
+| Key                   | Type   | Default | Possible values             | Description                                               |
+|-----------------------|--------|---------|-----------------------------|-----------------------------------------------------------|
+| enable                | bool   | false   | true, false                 | Enable the package                                        |
+| channel               | enum   | prod    | prod, preprod, testing      | `prod` is stable, `preprod` is beta, `testing` is alpha   |
+| launchArgs            | string |         |                             | Add launch arguments to the renderer                      |
+| enableDesktopLauncher | bool   | true    | true, false                 | Creates a .desktop entry                                  |
+| enableDiagnostics     | bool   | false   | true, false                 | Provide debug tools                                       |
+| forceDriver           | enum   | null    | iHD, i965, radeon, radeonsi | Force the LIBVA driver                                    |
+| enableGpuFix          | bool   | true    | true, false                 | Create the `drirc` file to fix some driver related issues |
 
 
-## A word on vaapi
+#### XSession configuration
+
+This package also provides a standalone session with only the necessary component to start Openbox and Shadow. You can set the configuration via `programs.shadow-client.x-session.<key>`.
+
+| Key                   | Type   | Default | Possible values             | Description                                                |
+|-----------------------|--------|---------|-----------------------------|------------------------------------------------------------|
+| enable                | bool   | false   | true, false                 | Enable the standalone XSession                             |
+| additionalMenuEntries |        | {}      |                             | Additional menu entries for the Openbox right click menu   |
+| startScript           | string |         |                             | Additional start option to be executed when Openbox starts |
+
+
+#### Systemd session configuration
+ 
+This package provides a standalone systemd daemon to start only the client wrapped into Xorg in a TTY. You can set the configuration at `programs.shadow-client.systemd-session.<key>`.
+
+| Key          | Type   | Default | Possible values             | Description                                  |
+|--------------|--------|---------|-----------------------------|----------------------------------------------|
+| enable       | bool   | false   | true, false                 | Enable the standalone XSession with Systemd  |
+| user         | string |         |                             | User that will start the session             |
+| tty          | int    | 8       |                             | TTY number where the session will be started |
+| onClosingTty | int    | null    |                             | TTY number that will be selected on closing  |
+
+
+## 3. About VAAPI
 
 It is important to have `vaapi` enabled to make Shadow works correctly. You can find information on this [NixOS wiki page](https://nixos.wiki/wiki/Accelerated_Video_Playback). 
 
@@ -94,8 +139,29 @@ The following example should work for both AMD and Intel GPU. This is just an ex
 }
 ```
 
+## 4. Versioning
 
-## I want to add an option
+`shadow-nix` follows [semantic versioning](https://semver.org/). In short the scheme is MAJOR.MINOR.PATCH where
+1. MAJOR is bumped when there is a breaking change,
+2. MINOR is bumped when a new feature is added in a backward-compatible way,
+3. PATCH is bumped when a bug is fixed in a backward-compatible way.
 
- - Issues and PR are welcome! I'll do my best to make this works for everyone!
+Versions bellow 1.0.0 are considered experimental and breaking changes may occur at any time.
 
+## 5. Contributing
+
+Contributions are welcomed! There are many ways to contribute, and we appreciate all of them. Here are some of the major ones:
+
+* [Bug Reports](https://github.com/NicolasGuilloux/shadow-nix/issues): While we strive for quality software, bugs can happen and we can't fix issues we're not aware of. So please report even if you're not sure about it or just want to ask a question. If anything the issue might indicate that the documentation can still be improved!
+* [Feature Request](https://github.com/NicolasGuilloux/shadow-nix/issues): You have a use case not covered by the current api? Want to suggest a change or add something? We'd be glad to read about it and start a discussion to try to find the best possible solution.
+* [Pull Request](https://github.com/NicolasGuilloux/shadow-nix/merge_requests): Want to contribute code or documentation? We'd love that! If you need help to get started, GitHub as [documentation](https://help.github.com/articles/about-pull-requests/) on pull requests. We use the ["fork and pull model"](https://help.github.com/articles/about-collaborative-development-models/) were contributors push changes to their personnal fork and then create pull requests to the main repository. Please make your pull requests against the `master` branch.
+
+As a reminder, all contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## 6. License
+
+`shadow-nix` is distributed under the terms of the [Unlicense license](LICENSE).
+
+## 7. Mentions
+
+This repository was originally created and maintained by [Elyhaka](https://github.com/Elyhaka). A big thanks to him for helping me learning Nix!

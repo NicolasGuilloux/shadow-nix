@@ -48,8 +48,8 @@ with lib;
     };
 
     forceDriver = mkOption {
-      type = types.enum [ "" "iHD" "i965" "radeon" "radeonsi" ];
-      default = "";
+      type = types.nullOr (types.enum [ "iHD" "i965" "radeon" "radeonsi" ]);
+      default = null;
       example = "iHD";
       description = ''
         Force the VA driver used by Shadow using the LIBVA_DRIVER_NAME environment variable.
