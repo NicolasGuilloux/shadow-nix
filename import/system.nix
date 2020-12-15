@@ -31,6 +31,6 @@ in {
     etc.drirc.source = mkIf (cfg.enableGpuFix) drirc;
 
     # Force VA Driver
-    variables.LIBVA_DRIVER_NAME = mkIf (cfg.forceDriver != "") [ cfg.forceDriver ];
+    variables.LIBVA_DRIVER_NAME = mkIf (cfg.forceDriver != null) [ cfg.forceDriver ];
   };
 }
