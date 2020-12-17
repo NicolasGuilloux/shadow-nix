@@ -37,7 +37,7 @@ in
       "systemd-logind.service"
     ];
     serviceConfig = {
-      ExecStartPre = "${config.system.path}/bin/chvt ${cfg.tty}";
+      ExecStartPre = "${config.system.path}/bin/chvt ${toString cfg.tty}";
       ExecStart =
         "${pkgs.dbus}/bin/dbus-run-session ${shadow-wrapped}/bin/${shadow-wrapped.sessionBinaryName}";
       ExecStopPost =
