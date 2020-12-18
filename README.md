@@ -8,7 +8,7 @@ The goal of this project is to provide Shadow on NixOS with a dynamic derivation
 
 ### Install
 
-Note that the ref value (`drv-v*.*.*`) should point to the lastest release. Checkout the tags to know it.
+Note that the ref value (`v*.*.*`) should point to the lastest release. Checkout the tags to know it.
 
 If you want the latest package derivation, use `ref = "master"` instead.
 
@@ -19,7 +19,7 @@ In your `home.nix` :
 ```nix
 {
   imports = [
-    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/home-manager.nix")
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v0.14.1"; } + "/home-manager.nix")
   ];
 
   programs.shadow-client = {
@@ -36,7 +36,7 @@ In your `configuration.nix` :
 ```nix
 {
   imports = [
-    (fetchGit { url = "https://github.com/Elyhaka/shadow-nix"; ref = "drv-v0.14.0"; } + "/system.nix")
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v0.14.1"; } + "/system.nix")
   ];
 
   programs.shadow-client = {
