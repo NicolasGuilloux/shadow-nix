@@ -3,7 +3,7 @@
 [![Actions Status](https://github.com/NicolasGuilloux/shadow-nix/workflows/HomeManager/badge.svg)](https://github.com/t/NicolasGuilloux/shadow-nix/actions)
 [![Actions Status](https://github.com/NicolasGuilloux/shadow-nix/workflows/SystemWide/badge.svg)](https://github.com/t/NicolasGuilloux/shadow-nix/actions)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/NicolasGuilloux/shadow-nix/issues)
-[![License](https://img.shields.io/badge/license-Unlicense-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Unlicense-blue.png)](LICENSE)
 
 The goal of this project is to provide Shadow on NixOS with a dynamic derivation to handle frequent updates.
 

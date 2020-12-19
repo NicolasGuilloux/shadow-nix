@@ -14,7 +14,7 @@ with lib;
 let
   # Import tools
   utilities = (import ./utilities { inherit lib pkgs; });
-  
+
   # Latest release information
   info = utilities.shadowApi.getLatestInfo shadowChannel;
 in stdenv.mkDerivation rec {
@@ -95,7 +95,7 @@ in stdenv.mkDerivation rec {
   '';
 
   # Create the package
-  installPhase = 
+  installPhase =
   ''
     mkdir -p $out/opt
     mkdir -p $out/lib
@@ -107,30 +107,43 @@ in stdenv.mkDerivation rec {
     rm -r ./squashfs-root/usr/lib
     rm ./squashfs-root/AppRun
     mv ./squashfs-root $out/opt/shadow-${info.channel}
-  '' + 
+  '' +
 
   # Add debug wrapper
-  optionalString enableDiagnostics (utilities.debug.wrapRenderer info.channel) + 
+  optionalString enableDiagnostics (utilities.debug.wrapRenderer info.channel) +
 
-  # Wrap renderer and launcher
+  # Wrap renderer
   ''
     wrapProgram $out/opt/shadow-${info.channel}/resources/app.asar.unpacked/release/native/Shadow \
-      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} ${
-        optionalString (extraClientParameters != [ ]) ''
-          ${concatMapStrings (x: " --add-flags '" + x + "'")
-          extraClientParameters}
-        ''
-      }
+      --run "cd $out/opt/shadow-${info.channel}/resources/app.asar.unpacked/release/native/" \
+      --prefix LD_LIBRARY_PATH : "$out/opt/shadow-${shadowChannel}" \
+      --prefix LD_LIBRARY_PATH : "$out/lib" \
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} \
+      --add-flags "--no-usb" \
+      --add-flags "--agent \"Linux;x64;Chrome 80.0.3987.165;latest\"" \
+      ${concatMapStrings (x: " --add-flags '" + x + "'") extraClientParameters}
+  ''
 
-    makeWrapper $out/opt/shadow-${info.channel}/${binaryName} $out/bin/shadow-${shadowChannel} \
+  # Wrap Renderer into binary
+  + ''
+    makeWrapper \
+      $out/opt/shadow-${info.channel}/resources/app.asar.unpacked/release/native/Shadow \
+      $out/bin/shadow-${info.channel}-renderer \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
-  '' + 
+  ''
+
+  # Wrap launcher
+  + ''
+    makeWrapper $out/opt/shadow-${info.channel}/${binaryName} $out/bin/shadow-${info.channel} \
+      --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
+  ''
 
   # Add Desktop entry
-  optionalString desktopLauncher ''
+  + optionalString desktopLauncher ''
     substitute $out/opt/shadow-${info.channel}/${binaryName}.desktop \
       $out/share/applications/${binaryName}.desktop \
-      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}"
+      --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}" \
+      --replace "Icon=${binaryName}" "Icon=$out/opt/${binaryName}/resources/app.asar.unpacked/release/main/assets/icons/${binaryName}.png"
   '';
 
   meta = with stdenv.lib; {
