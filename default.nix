@@ -18,10 +18,11 @@ let
   # Latest release information
   info = utilities.shadowApi.getLatestInfo shadowChannel;
 in stdenv.mkDerivation rec {
-  pname = "shadow-${info.channel}";
+  pname = "shadow-${shadowChannel}";
   version = info.version;
   src = fetchurl (utilities.shadowApi.getDownloadInfo info);
-  binaryName = (if shadowChannel == "prod" then "shadow" else "shadow-${info.channel}");
+  binaryName = (if shadowChannel == "prod" then "shadow" else "shadow-${shadowChannel}");
+  channel = shadowChannel;
 
   # Add all hooks
   nativeBuildInputs = [ autoPatchelfHook wrapGAppsHook makeWrapper ];
@@ -106,16 +107,16 @@ in stdenv.mkDerivation rec {
     ln -s ${lib.getLib systemd}/lib/libudev.so.1 $out/lib/libudev.so.1
     rm -r ./squashfs-root/usr/lib
     rm ./squashfs-root/AppRun
-    mv ./squashfs-root $out/opt/shadow-${info.channel}
+    mv ./squashfs-root $out/opt/shadow-${shadowChannel}
   '' +
 
   # Add debug wrapper
-  optionalString enableDiagnostics (utilities.debug.wrapRenderer info.channel) +
+  optionalString enableDiagnostics (utilities.debug.wrapRenderer shadowChannel) +
 
   # Wrap renderer
   ''
-    wrapProgram $out/opt/shadow-${info.channel}/resources/app.asar.unpacked/release/native/Shadow \
-      --run "cd $out/opt/shadow-${info.channel}/resources/app.asar.unpacked/release/native/" \
+    wrapProgram $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
+      --run "cd $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/" \
       --prefix LD_LIBRARY_PATH : "$out/opt/shadow-${shadowChannel}" \
       --prefix LD_LIBRARY_PATH : "$out/lib" \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies} \
@@ -127,23 +128,23 @@ in stdenv.mkDerivation rec {
   # Wrap Renderer into binary
   + ''
     makeWrapper \
-      $out/opt/shadow-${info.channel}/resources/app.asar.unpacked/release/native/Shadow \
-      $out/bin/shadow-${info.channel}-renderer \
+      $out/opt/shadow-${shadowChannel}/resources/app.asar.unpacked/release/native/Shadow \
+      $out/bin/shadow-${shadowChannel}-renderer \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
   ''
 
   # Wrap launcher
   + ''
-    makeWrapper $out/opt/shadow-${info.channel}/${binaryName} $out/bin/shadow-${info.channel} \
+    makeWrapper $out/opt/shadow-${shadowChannel}/${binaryName} $out/bin/shadow-${shadowChannel} \
       --prefix LD_LIBRARY_PATH : ${makeLibraryPath runtimeDependencies}
   ''
 
   # Add Desktop entry
   + optionalString desktopLauncher ''
-    substitute $out/opt/shadow-${info.channel}/${binaryName}.desktop \
+    substitute $out/opt/shadow-${shadowChannel}/${binaryName}.desktop \
       $out/share/applications/${binaryName}.desktop \
       --replace "Exec=AppRun" "Exec=$out/bin/shadow-${shadowChannel}" \
-      --replace "Icon=${binaryName}" "Icon=$out/opt/${binaryName}/resources/app.asar.unpacked/release/main/assets/icons/${binaryName}.png"
+      --replace "Icon=${binaryName}" "Icon=$out/opt/${binaryName}/resources/app.asar.unpacked/release/main/assets/icons/shadow-${shadowChannel}.png"
   '';
 
   meta = with stdenv.lib; {
