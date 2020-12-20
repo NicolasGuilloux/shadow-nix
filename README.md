@@ -1,7 +1,6 @@
 # Shadow on NixOS
 
-[![Actions Status](https://github.com/NicolasGuilloux/shadow-nix/workflows/HomeManager/badge.svg)](https://github.com/t/NicolasGuilloux/shadow-nix/actions)
-[![Actions Status](https://github.com/NicolasGuilloux/shadow-nix/workflows/SystemWide/badge.svg)](https://github.com/t/NicolasGuilloux/shadow-nix/actions)
+![Package build](https://github.com/NicolasGuilloux/shadow-nix/workflows/Package%20build/badge.svg)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/NicolasGuilloux/shadow-nix/issues)
 [![License](https://img.shields.io/badge/license-Unlicense-blue.png)](LICENSE)
 
