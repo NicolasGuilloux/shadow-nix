@@ -22,7 +22,7 @@ let
       ${compton}/bin/compton --vsync -b --backend glx
 
       # Display a beautiful wallpaper
-      ${feh}/bin/feh --bg-scale ${./openbox/background.png}
+      ${feh}/bin/feh --bg-scale ${../assets/images/background.png}
 
       exec ${shadow-package}/bin/shadow-${shadowChannel} "$@"
     '';
