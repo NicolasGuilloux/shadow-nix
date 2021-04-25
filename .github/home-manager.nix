@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 let
-  repository = /home/runner;
+  repository = /home/runner/work/shadow-nix/shadow-nix;
 in
 {
   imports = [
