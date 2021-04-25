@@ -43,7 +43,8 @@ In your `configuration.nix` :
   ];
 
   programs.shadow-client = {
-    enable = true;
+    # Enabled by default when using import
+    # enable = true;
     channel = "prod";
   };
 }
@@ -60,7 +61,8 @@ In your `home.nix` :
   ];
 
   programs.shadow-client = {
-    enable = true;
+    # Enabled by default when using import
+    # enable = true;
     channel = "preprod";
   };
 }
