@@ -11,9 +11,7 @@ jobs:
             - uses: actions/checkout@v2.3.4
             - uses: cachix/install-nix-action@v12
               with:
-                  nix_path: nixpkgs=channel:nixos-20.09:$HOME/.nix-defexpr/channels
-
-            - run: echo $NIX_PATH
+                  nix_path: nixpkgs=channel:nixos-20.09:/home/runner/.nix-defexpr/channels
 
             - name: Add Home Manager
               run: nix-channel --add https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz home-manager
@@ -21,13 +19,14 @@ jobs:
             - name: Update channels
               run: nix-channel --update
 
-            - run: echo $NIX_PATH
-
-            - run: export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
-
-            - run: echo $NIX_PATH
-
-            - run: 'cd ~; echo $PWD'
-
             - name: Install Home Manager
               run: nix-shell 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install
+
+            - name: List Home Manager packages
+              run: home-manager packages
+
+            - name: Copy configuration file
+              run: cp -f .github/home-manager.nix /home/runner/.config/nixpkgs/home.nix
+
+            - name: Rebuild Home Manager configuration
+              run: home-manager switch
