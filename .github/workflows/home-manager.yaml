@@ -3,7 +3,7 @@ on:
     pull_request:
     push:
 jobs:
-    tests:
+    home-manager-20-09:
         runs-on: ubuntu-latest
         env:
             NIXPKGS_ALLOW_UNFREE: 1
@@ -21,9 +21,13 @@ jobs:
             - name: Update channels
               run: nix-channel --update
 
+            - run: echo $NIX_PATH
+
             - run: export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
+
+            - run: echo $NIX_PATH
 
             - run: 'cd ~; echo $PWD'
 
             - name: Install Home Manager
-              run: nix-shell '<home-manager>' -A install
+              run: nix-shell '<home-manager>' -I 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install 
