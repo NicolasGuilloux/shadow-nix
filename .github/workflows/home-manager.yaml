@@ -30,4 +30,4 @@ jobs:
             - run: 'cd ~; echo $PWD'
 
             - name: Install Home Manager
-              run: nix-shell '<home-manager>' -I 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install 
+              run: nix-shell 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install
