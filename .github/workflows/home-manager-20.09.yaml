@@ -19,7 +19,9 @@ jobs:
             - name: Update channels
               run: nix-channel --update
 
-            - name: Install Home Manager
-              run: nix-shell '<home-manager>' -A install
+            - run: export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
 
             - run: 'cd ~; echo $PWD'
+
+            - name: Install Home Manager
+              run: nix-shell '<home-manager>' -A install
