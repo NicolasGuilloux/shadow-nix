@@ -1,4 +1,4 @@
-name: "Package build"
+name: "Home manager import"
 on:
     pull_request:
     push:
@@ -22,11 +22,10 @@ jobs:
             - name: Install Home Manager
               run: nix-shell 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install
 
-            - name: List Home Manager packages
-              run: home-manager packages
-
             - name: Copy configuration file
               run: cp -f .github/home-manager.nix /home/runner/.config/nixpkgs/home.nix
 
+            - run: echo $PWD
+
             - name: Rebuild Home Manager configuration
-              run: home-manager switch
+              run: home-manager switch --show-trace

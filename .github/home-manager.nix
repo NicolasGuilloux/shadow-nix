@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 let
-  repository = ./..;
+  repository = /home/runner;
 in
 {
   imports = [
