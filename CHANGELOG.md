@@ -1,6 +1,11 @@
 # Changelog
 
 
+### Unreleased changes
+
+- Add Home Manager CI import test
+
+
 ### Version 1.0.1
 
 [Pull request](https://github.com/NicolasGuilloux/shadow-nix/pull/14)
