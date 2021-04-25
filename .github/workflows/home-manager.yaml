@@ -13,19 +13,11 @@ jobs:
               with:
                   nix_path: nixpkgs=channel:nixos-20.09:/home/runner/.nix-defexpr/channels
 
-            - name: Add Home Manager
-              run: nix-channel --add https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz home-manager
-
-            - name: Update channels
-              run: nix-channel --update
-
             - name: Install Home Manager
               run: nix-shell 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install
 
             - name: Copy configuration file
               run: cp -f .github/home-manager.nix /home/runner/.config/nixpkgs/home.nix
-
-            - run: echo $PWD
 
             - name: Rebuild Home Manager configuration
               run: home-manager switch --show-trace
