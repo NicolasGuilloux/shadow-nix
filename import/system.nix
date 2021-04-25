@@ -1,9 +1,10 @@
 { config, pkgs, lib, ... }:
 
-with lib;
-
 let
+  # Client configuration
   cfg = config.programs.shadow-client;
+
+  # A set of utilities
   utilities = import ../utilities { inherit lib pkgs; };
 
   # Declare the package with the appropriate configuration
@@ -20,17 +21,17 @@ in {
   imports = [ ../config.nix ../x-session ../systemd-session ];
 
   # By default, if you import this file, the Shadow app will be installed
-  programs.shadow-client.enable = mkDefault true;
+  programs.shadow-client.enable = lib.mkDefault true;
 
   # Enables
-  environment = mkIf cfg.enable {
+  environment = lib.mkIf cfg.enable {
     # Install Shadow wrapper
     systemPackages = with pkgs; [ shadow-package libva-utils libva ];
 
     # Add GPU fixes
-    etc.drirc.source = mkIf (cfg.enableGpuFix) drirc;
+    etc.drirc.source = lib.mkIf (cfg.enableGpuFix) drirc;
 
     # Force VA Driver
-    variables.LIBVA_DRIVER_NAME = mkIf (cfg.forceDriver != null) [ cfg.forceDriver ];
+    variables.LIBVA_DRIVER_NAME = lib.mkIf (cfg.forceDriver != null) [ cfg.forceDriver ];
   };
 }

@@ -1,5 +1,14 @@
 # Changelog
 
+
+### Version 1.0.1
+
+[Pull request](https://github.com/NicolasGuilloux/shadow-nix/pull/14)
+
+- Fixing the [#13](https://github.com/NicolasGuilloux/shadow-nix/issues/13) issue about the import with home manager.
+- Editing documentation
+- Adding Unstable package build
+
 ### Version 1
 
 [Pull request](https://github.com/NicolasGuilloux/shadow-nix/pull/11)
