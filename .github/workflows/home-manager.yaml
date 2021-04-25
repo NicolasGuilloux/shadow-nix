@@ -27,3 +27,28 @@ jobs:
 
             - name: Rebuild Home Manager configuration
               run: home-manager switch --show-trace
+
+    home-manager-unstable:
+        runs-on: ubuntu-latest
+        env:
+            NIXPKGS_ALLOW_UNFREE: 1
+        steps:
+            - uses: actions/checkout@v2.3.4
+            - uses: cachix/install-nix-action@v12
+              with:
+                  nix_path: nixpkgs=channel:nixos-20.09:/home/runner/.nix-defexpr/channels
+
+            - name: Add Home Manager
+              run: nix-channel --add https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz home-manager
+
+            - name: Update channels
+              run: nix-channel --update
+
+            - name: Install Home Manager
+              run: nix-shell 'https://github.com/nix-community/home-manager/archive/release-20.09.tar.gz' -A install
+
+            - name: Copy configuration file
+              run: cp -f .github/home-manager.nix /home/runner/.config/nixpkgs/home.nix
+
+            - name: Rebuild Home Manager configuration
+              run: home-manager switch --show-trace
