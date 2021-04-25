@@ -1,4 +1,4 @@
-name: "Home manager import"
+name: "Home Manager import"
 on:
     pull_request:
     push:
