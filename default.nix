@@ -4,7 +4,7 @@
 , xorg, alsaLib, libbsd, libopus, openssl, libva, pango, cairo, libuuid, nspr
 , nss, cups, expat, atk, at-spi2-atk, gtk3, gdk-pixbuf, libsecret, systemd
 , pulseaudio, libGL, dbus, libnghttp2, libidn2, libpsl, libkrb5, openldap
-, rtmpdump, libinput
+, rtmpdump, libinput, mesa
 
 , enableDiagnostics ? false, extraClientParameters ? []
 , shadowChannel ? "prod", desktopLauncher ? true }:
@@ -66,6 +66,7 @@ in stdenv.mkDerivation rec {
     libkrb5
     openldap
     rtmpdump
+    mesa
   ];
 
   # Mandatory libraries for the runtime
