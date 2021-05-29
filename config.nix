@@ -14,17 +14,16 @@ with lib;
       example = "preprod";
       description = ''
         Choose a channel for the Shadow application.
-        `prod` is the stable channel, `preprod` is the beta channel.
+        `prod` is the stable channel, `preprod` is the beta channel. `testing` is the alpha channel.
       '';
     };
 
     extraChannels = mkOption {
       type = types.listOf (types.enum [ "prod" "preprod" "testing" ]);
-      default = "prod";
-      example = "preprod";
+      default = [];
+      example = [ "preprod" "testing" ];
       description = ''
-        Choose a channel for the Shadow application.
-        `prod` is the stable channel, `preprod` is the beta channel.
+        Choose extra channels to install aside from the main channel
       '';
     };
 

@@ -74,15 +74,16 @@ In your `home.nix` :
 
 This is the configuration of the package itself. You can set them via `programs.shadow-client.<key>`.
 
-| Key                   | Type   | Default | Possible values             | Description                                               |
-|-----------------------|--------|---------|-----------------------------|-----------------------------------------------------------|
-| enable                | bool   | false   | true, false                 | Enable the package                                        |
-| channel               | enum   | prod    | prod, preprod, testing      | `prod` is stable, `preprod` is beta, `testing` is alpha   |
-| launchArgs            | string |         |                             | Add launch arguments to the renderer                      |
-| enableDesktopLauncher | bool   | true    | true, false                 | Creates a .desktop entry                                  |
-| enableDiagnostics     | bool   | false   | true, false                 | Provide debug tools                                       |
-| forceDriver           | enum   | null    | iHD, i965, radeon, radeonsi | Force the LIBVA driver                                    |
-| enableGpuFix          | bool   | true    | true, false                 | Create the `drirc` file to fix some driver related issues |
+| Key                   | Type   | Default | Possible values                | Description                                               |
+|-----------------------|--------|---------|--------------------------------|-----------------------------------------------------------|
+| enable                | bool   | false   | true, false                    | Enable the package                                        |
+| channel               | enum   | prod    | prod, preprod, testing         | `prod` is stable, `preprod` is beta, `testing` is alpha   |
+| extraChannels         | [enum] | []      | [ "prod" "preprod" "testing" ] | `prod` is stable, `preprod` is beta, `testing` is alpha   |
+| launchArgs            | string |         |                                | Add launch arguments to the renderer                      |
+| enableDesktopLauncher | bool   | true    | true, false                    | Creates a .desktop entry                                  |
+| enableDiagnostics     | bool   | false   | true, false                    | Provide debug tools                                       |
+| forceDriver           | enum   | null    | iHD, i965, radeon, radeonsi    | Force the LIBVA driver                                    |
+| enableGpuFix          | bool   | true    | true, false                    | Create the `drirc` file to fix some driver related issues |
 
 
 #### XSession configuration
