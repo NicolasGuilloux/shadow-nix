@@ -18,6 +18,16 @@ with lib;
       '';
     };
 
+    extraChannels = mkOption {
+      type = types.listOf (types.enum [ "prod" "preprod" "testing" ]);
+      default = "prod";
+      example = "preprod";
+      description = ''
+        Choose a channel for the Shadow application.
+        `prod` is the stable channel, `preprod` is the beta channel.
+      '';
+    };
+
     launchArgs = mkOption {
       type = types.str;
       default = "";

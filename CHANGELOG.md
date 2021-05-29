@@ -1,9 +1,11 @@
 # Changelog
 
 
-### Unreleased changes
+### Version 1.0.2
 
 - Add Home Manager CI import test
+- Fix Mesa dependency
+- Add `extraChannels` option to install multiple channels
 
 
 ### Version 1.0.1
