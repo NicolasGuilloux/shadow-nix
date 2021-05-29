@@ -1,7 +1,6 @@
 name: "Package Build"
 on:
     pull_request:
-    push:
 jobs:
     package-20-09:
         runs-on: ubuntu-latest
