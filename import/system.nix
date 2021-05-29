@@ -8,8 +8,8 @@ let
   utilities = import ../utilities { inherit lib pkgs; };
 
   # Declare the package with the appropriate configuration
-  shadow-package = pkgs.callPackage ../default.nix {
-    shadowChannel = cfg.channel;
+  shadow-package = channel: pkgs.callPackage ../default.nix {
+    shadowChannel = channel;
     enableDiagnostics = cfg.enableDiagnostics;
     desktopLauncher = cfg.enableDesktopLauncher;
   };
@@ -26,7 +26,11 @@ in {
   # Enables
   environment = lib.mkIf cfg.enable {
     # Install Shadow wrapper
-    systemPackages = with pkgs; [ shadow-package libva-utils libva ];
+    systemPackages = with pkgs; [ 
+      (shadow-package cfg.channel)
+      libva-utils 
+      libva 
+    ] ++ lib.forEach cfg.extraChannels shadow-package;
 
     # Add GPU fixes
     etc.drirc.source = lib.mkIf (cfg.enableGpuFix) drirc;
