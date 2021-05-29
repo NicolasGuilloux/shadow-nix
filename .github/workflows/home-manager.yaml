@@ -1,7 +1,6 @@
 name: "Home Manager import"
 on:
     pull_request:
-    push:
 jobs:
     home-manager-20-09:
         runs-on: ubuntu-latest
