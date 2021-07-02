@@ -41,6 +41,8 @@ in stdenv.mkDerivation rec {
     xorg.libXfixes
     xorg.libXi
     xorg.libXtst
+    xorg.xcbutilimage
+    xorg.xcbutilrenderutil
 
     cairo
     pango
