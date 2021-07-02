@@ -39,7 +39,7 @@ In your `configuration.nix` :
 ```nix
 {
   imports = [
-    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.1"; } + "/import/system.nix")
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.3"; } + "/import/system.nix")
   ];
 
   programs.shadow-client = {
@@ -57,7 +57,7 @@ In your `home.nix` :
 ```nix
 {
   imports = [
-    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.1"; } + "/import/home-manager.nix")
+    (fetchGit { url = "https://github.com/NicolasGuilloux/shadow-nix"; ref = "v1.0.3"; } + "/import/home-manager.nix")
   ];
 
   programs.shadow-client = {

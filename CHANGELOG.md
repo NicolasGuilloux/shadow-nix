@@ -1,5 +1,9 @@
 # Changelog
 
+### Version 1.0.3
+
+- Fix the 2 new dependencies: `xcb-image` and `xcb-render-util`.
+
 
 ### Version 1.0.2
 
