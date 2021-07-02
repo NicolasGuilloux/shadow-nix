@@ -150,7 +150,7 @@ in stdenv.mkDerivation rec {
       --replace "Icon=${binaryName}" "Icon=$out/opt/${binaryName}/resources/app.asar.unpacked/release/main/assets/icons/shadow-${shadowChannel}.png"
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Client for the Shadow Cloud Gaming Computer";
     homepage = "https://shadow.tech";
     license = [ licenses.unfree ];
