@@ -1,6 +1,6 @@
 # Shadow on NixOS
 
-> :warning: Since I canceled my subscription, I am no longer able to maintain this package. If somebody wants to continue the maintenance, feel free to fork or [contact me](mailto:nicolas.guilloux@protonmail.com)
+> :warning: Since I canceled my subscription, I am no longer able to maintain this package. You may go to the following repository to get a functionning package: https://github.com/cornerman/shadow-nix
 
 ![Package build](https://github.com/NicolasGuilloux/shadow-nix/workflows/Package%20build/badge.svg)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/NicolasGuilloux/shadow-nix/issues)
